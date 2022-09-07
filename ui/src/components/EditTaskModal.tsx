@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { useForm } from "react-hook-form";
-import { saveService} from '../services/saveService'
+import { SaveService} from '../services/SaveService'
 
 
 interface IEditTaskModal {
@@ -16,7 +16,7 @@ export default function EditTaskModal({task, taskEdited}: IEditTaskModal) {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const saveService = new saveService();
+    const saveService = new SaveService();
 
     const { register, handleSubmit } = useForm();
     const onSubmit = (data: any) => {

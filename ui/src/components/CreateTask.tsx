@@ -1,12 +1,12 @@
 import React from 'react'
 import { useForm } from "react-hook-form";
-import { saveService} from '../services/saveService'
+import { SaveService} from '../services/SaveService'
 
 export default function CreateTask(props: any) {
 
     const { register, handleSubmit } = useForm();
 
-    const saveService = new saveService();
+    const saveService = new SaveService();
 
     const onSubmit = (data: any, e: any) => {
         saveService.createTask(data).then(response => {

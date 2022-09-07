@@ -1,5 +1,5 @@
 
-export class saveService {
+export class SaveService {
 
     public async getAllTasks(): Promise<any> {
         const response = await fetch('/api/tasks');

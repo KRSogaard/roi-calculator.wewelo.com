@@ -23,5 +23,4 @@ export class SaveService {
     async deleteTask(taskId) {
         return await this.taskRepository.deleteTask(taskId);
     }
-
 }
