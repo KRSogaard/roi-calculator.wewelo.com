@@ -86,188 +86,192 @@ export const Settings = (onSettingsChange: any) => {
       console.log("Errors:", errors);
     }
     return (
-      <div className="form-group">
-        <label htmlFor="landValue">{title}:</label>
-        <div className="input-group mb-3">
-          {prefix !== "" && (
-            <div className="input-group-prepend">
+      <div className="form-group row">
+        <label className="col-sm-5" htmlFor={fields.name}>{title}:</label>
+        <div className="col-sm-7">
+          <div className="input-group mb-3">
+            {prefix !== "" && (
+              // <div className="input-group-prepend">
               <span className="input-group-text" id="basic-addon1">
                 {prefix}
-              </span>
-            </div>)}
+                //</span>
+              </div>)}
           <input
+            id={fields.name}
             type="number"
-            className="form-control"
+            className="form-control form-control-sm"
             step="any"
             {...fields}
           />
         </div>
-      </div>)
+
+      </div>
+      </div >)
   }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit, onError)}>
-      {/* <small className="text-danger">
+return (
+  <form onSubmit={handleSubmit(onSubmit, onError)}>
+    {/* <small className="text-danger">
         {errors?.role && errors.role.message}
       </small> */}
 
-      {inputField("Purchase Price", register("purchasePrice", {
-        required: true,
-        valueAsNumber: true
-      }), "$")}
-      {inputField("Land value", register("landValuePtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-      {inputField("Land value", register("downPaymentPtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
+    {inputField("Purchase Price", register("purchasePrice", {
+      required: true,
+      valueAsNumber: true
+    }), "$")}
+    {inputField("Land value", register("landValuePtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+    {inputField("Land value", register("downPaymentPtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
 
-      <div className="form-group">
-        <label htmlFor="landValue">Down payment value:</label>
-        <div className="input-group mb-3">
-          <div className="input-group-prepend">
-            <span className="input-group-text" id="basic-addon1">
-              $
-            </span>
-          </div>
-          <input
-            type="number"
-            className="form-control"
-            value={downPaymentValue.toFixed(2)}
-            readOnly
-          />
+    <div className="form-group">
+      <label htmlFor="landValue">Down payment value:</label>
+      <div className="input-group mb-3">
+        <div className="input-group-prepend">
+          <span className="input-group-text" id="basic-addon1">
+            $
+          </span>
         </div>
+        <input
+          type="number"
+          className="form-control"
+          value={downPaymentValue.toFixed(2)}
+          readOnly
+        />
       </div>
+    </div>
 
-      <h3>
-        Closing costs
-      </h3>
-      {inputField("Loan Fees", register("loanFeesPtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-      {inputField("Escrow Fees", register("escrowFeesPtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0
-      }), "%")}
+    <h3>
+      Closing costs
+    </h3>
+    {inputField("Loan Fees", register("loanFeesPtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+    {inputField("Escrow Fees", register("escrowFeesPtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0
+    }), "%")}
 
-      <h3>
-        Closing costs
-      </h3>
-      {inputField("Rehab", register("rehabCost", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "$")}
-      {inputField("Rehab value increase", register("rehabValueCost", {
-        required: true,
-        valueAsNumber: true,
-        min: 0
-      }), "$")}
-
-
-      <h3>
-        Total Closing: {totalClosing}
-      </h3>
-
-      {inputField("Loan Rate", register("loanRatePtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Loan Rate", register("loanTerm", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-      }), "months")}
-
-      {inputField("Rent Income", register("rentIncome", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-      }), "$", errors.rentIncome)}
-
-      {inputField("Management Fee", register("managementFeePtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Maintenance Cost", register("maintenanceCostPtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Tax Rate", register("taxRatePtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Property Tax", register("propertyTaxPtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Vacancy rate", register("vacancyRatePtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Annual rent increase", register("annualRentIncreasePtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
-
-      {inputField("Annual utilities", register("annualUtilities", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-      }), "$")}
-
-      {inputField("Annual insurance", register("annualInsurance", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-      }), "$")}
-
-      {inputField("Annual other costs", register("annualOtherCosts", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-      }), "$")}
-
-      {inputField("Sales Fee", register("salesFeesPtc", {
-        required: true,
-        valueAsNumber: true,
-        min: 0,
-        max: 100,
-      }), "%")}
+    <h3>
+      Closing costs
+    </h3>
+    {inputField("Rehab", register("rehabCost", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "$")}
+    {inputField("Rehab value increase", register("rehabValueCost", {
+      required: true,
+      valueAsNumber: true,
+      min: 0
+    }), "$")}
 
 
-      <input type="submit" />
-    </form>
-  );
+    <h3>
+      Total Closing: {totalClosing}
+    </h3>
+
+    {inputField("Loan Rate", register("loanRatePtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Loan Rate", register("loanTerm", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+    }), "months")}
+
+    {inputField("Rent Income", register("rentIncome", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+    }), "$", errors.rentIncome)}
+
+    {inputField("Management Fee", register("managementFeePtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Maintenance Cost", register("maintenanceCostPtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Tax Rate", register("taxRatePtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Property Tax", register("propertyTaxPtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Vacancy rate", register("vacancyRatePtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Annual rent increase", register("annualRentIncreasePtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+    {inputField("Annual utilities", register("annualUtilities", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+    }), "$")}
+
+    {inputField("Annual insurance", register("annualInsurance", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+    }), "$")}
+
+    {inputField("Annual other costs", register("annualOtherCosts", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+    }), "$")}
+
+    {inputField("Sales Fee", register("salesFeesPtc", {
+      required: true,
+      valueAsNumber: true,
+      min: 0,
+      max: 100,
+    }), "%")}
+
+
+    <input type="submit" />
+  </form>
+);
 };
