@@ -12,96 +12,76 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
     let currentRent = input.RentIncome;
     let currentHousePrice = input.PurchasePrice + input.RemodelValueIncrease;
     let taxCredit = 0;
-    let totalProfit = 0;
+    let totalCashFlowPostTax = 0;
 
     let lastDepreciationMonth = DepreciationOverYears * 12;
     for (let currentMonth = 1; currentMonth <= simulateYears * 12; currentMonth++) {
-        let month: IMonthResult = <any>{};
-
-        let principal = -ppmt(input.LoanPtc / 12, currentMonth, input.LoanTerms, fixedCosts.totalLoanAtPurchase);
-        let intrest = -ipmt(input.LoanPtc / 12, currentMonth, input.LoanTerms, fixedCosts.totalLoanAtPurchase);
-        month.PrincipalPaid = principal;
-        month.IntrestPaid = intrest;
-
-        let fixedMonthlyExpenses = (input.AnnualInsurance + input.AnnualUtilities + input.AnnualOtherCost) / 12;
-        let monthlyMaintenance = input.MaintenanceCostPtc * currentRent;
-        let monthlyManagement = input.ManagementFeePtc * currentRent;
-        let monthlyExpensesTotal = intrest + fixedMonthlyExpenses + monthlyMaintenance + monthlyManagement + fixedCosts.monthlyPropertyTax;
-
-        month.PropertyTax = fixedCosts.monthlyPropertyTax;
-        month.Expenses = monthlyExpensesTotal;
-        month.OutOfPocket = principal + monthlyExpensesTotal;
-        month.RentIncome = currentRent;
-
-        let monthlyProfit = currentRent * (1 - input.VacancyRatePtc) - monthlyExpensesTotal;
-        totalProfit += monthlyProfit;
+        if (currentMonth % 12 == 0 && currentMonth != 0) {
+            currentRent *= 1 + input.AnnualAppreciationPtc;
+        }
 
         let depreciation = 0;
         if (currentMonth <= lastDepreciationMonth) {
             depreciation = fixedCosts.monthlyDepreciation;
         }
 
-        month.NetIncome = monthlyProfit;
-        let tax = 0;
-        if (monthlyProfit > 0) {
-            let taxableIncome = monthlyProfit - depreciation;
-            if (taxableIncome > 0) {
-                if (taxCredit > taxableIncome) {
-                    taxCredit -= taxableIncome;
-                    taxableIncome = 0;
-                } else {
-                    taxableIncome -= taxCredit;
-                    taxCredit = 0;
-                }
-                month.TaxableIncome = taxableIncome;
-                tax = taxableIncome * input.TaxRatePtc;
-            } else {
-                taxCredit += -taxableIncome;
-                tax = 0;
-            }
-        } else {
-            tax = 0;
-            taxCredit += -monthlyProfit + depreciation;
-            month.TaxableIncome = 0;
-        }
-        month.Tax = tax;
-        month.TaxCredit = taxCredit;
+        let principal = -ppmt(input.LoanPtc / 12, currentMonth, input.LoanTerms, fixedCosts.totalLoanAtPurchase);
+        let intrest = -ipmt(input.LoanPtc / 12, currentMonth, input.LoanTerms, fixedCosts.totalLoanAtPurchase);
 
-        let cashInHand = (currentRent - monthlyExpensesTotal) * (1 - input.VacancyRatePtc) - principal - tax;
-        let valueGain = monthlyProfit - tax;
+        let propertyTax = (input.PurchasePrice * input.PropertyTaxPtc) / 12;
+        let operatingExpenses =
+            (input.AnnualInsurance + input.AnnualUtilities + input.AnnualOtherCost) / 12 +
+            currentRent * input.MaintenanceCostPtc +
+            currentRent * input.ManagementFeePtc +
+            propertyTax;
+        let netOperationalIncome = currentRent - operatingExpenses;
+        let operatingIncome = currentRent - operatingExpenses - currentRent * input.VacancyRatePtc;
 
-        month.CashInHand = cashInHand;
-        month.ValueGain = valueGain;
+        let taxableIncome = operatingIncome - intrest;
+        let taxCalculation = calculateTex(taxableIncome, depreciation, input.TaxRatePtc, taxCredit);
+        taxCredit = taxCalculation.taxCredit;
+        let totalExpenses = operatingExpenses - currentRent * input.VacancyRatePtc - intrest - taxCalculation.tax;
+        let netIncome = operatingIncome - totalExpenses;
+        let cashFlow = netIncome - principal;
+        let cashFlowPreTax = cashFlow + taxCalculation.tax;
 
+        totalCashFlowPostTax += cashFlow;
         currentRemainingLoan -= principal;
 
-        currentHousePrice *= 1 + input.AnnualAppreciationPtc / 12;
-
-        let costAtSale = currentHousePrice * input.SalesFeesPtc;
-        let cashAtSalePreTax = currentHousePrice - costAtSale - fixedCosts.downPayment - currentRemainingLoan;
+        let propertySalesFees = currentHousePrice * input.SalesFeesPtc;
+        let cashAtSalePreTax = currentHousePrice - propertySalesFees - fixedCosts.downPayment - currentRemainingLoan;
         let taxableAtSale = cashAtSalePreTax - taxCredit;
         if (taxableAtSale < 0) {
             taxableAtSale = 0;
         }
 
         let taxAtSale = calculateLongTermCapitalGainsTax(taxableAtSale);
-        let cashAtSale = cashAtSalePreTax - taxAtSale - input.RemodelCost - fixedCosts.closingCost;
-        let valueAtSale = cashAtSale + totalProfit;
+        let cashAfterPropertySale = cashAtSalePreTax - taxAtSale - input.RemodelCost - fixedCosts.closingCost;
 
-        month.CashAtSale = cashAtSale;
-        month.ValueAtSale = valueAtSale;
+        months.push({
+            month: currentMonth,
+            year: Math.floor(currentMonth / 12),
+            principalPaid: principal,
+            intrestPaid: intrest,
+            propertyTax: propertyTax,
+            operatingExpenses: operatingExpenses,
+            netOperationalIncome: netOperationalIncome,
+            operatingIncome: operatingIncome,
+            tax: taxCalculation.tax,
+            totalExpenses: totalExpenses,
+            netIncome: netIncome,
+            cashFlowPreTax: cashFlowPreTax,
+            cashFlow: cashFlow,
+            cashAfterPropertySale: cashAfterPropertySale,
+            totalCashFlowPostTax: totalCashFlowPostTax,
+        });
 
         if (currentMonth % 12 == 0) {
-            currentRent *= 1 + input.AnnualAppreciationPtc;
+            years.push(aggregateYear(currentMonth, months, years, fixedCosts));
         }
-        month.Month = currentMonth;
-        month.Year = Math.floor(currentMonth / 12);
 
-        months.push(month);
-
-        if (currentMonth % 12 == 0) {
-            years.push(aggregateYear(currentMonth, months, years));
-        }
+        // incroment values
+        currentHousePrice *= 1 + input.AnnualAppreciationPtc / 12;
     }
     return {
         fixedCosts: fixedCosts,
@@ -110,37 +90,78 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
     };
 };
 
-let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearResult[]): IYearResult => {
-    let yearlyCashInHand = 0;
-    let yearlyNetIncome = 0;
-    let yearlyTaxPaid = 0;
-    let yearlyValueGain = 0;
-    let yearlyIntrestPaid = 0;
-    let yearlyPrincipalPaid = 0;
-    let yearlyPropertyTax = 0;
+let calculateTex = (income: number, depreciation: number, taxRatePtc: number, taxCredit: number) => {
+    let tax = 0;
+    if (income > 0) {
+        let taxableIncome = income - depreciation;
+        if (taxableIncome > 0) {
+            if (taxCredit > taxableIncome) {
+                taxCredit -= taxableIncome;
+                taxableIncome = 0;
+            } else {
+                taxableIncome -= taxCredit;
+                taxCredit = 0;
+            }
+            tax = taxableIncome * taxRatePtc;
+        } else {
+            taxCredit += -taxableIncome;
+            tax = 0;
+        }
+    } else {
+        tax = 0;
+        taxCredit += -income + depreciation;
+    }
+    return {
+        tax: tax,
+        taxCredit: taxCredit,
+    };
+};
+
+let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearResult[], fixedCosts: IFixedCosts): IYearResult => {
+    let aggrogatedYear: IMonthResult = {
+        year: 0,
+        month: 0,
+        principalPaid: 0,
+        intrestPaid: 0,
+        propertyTax: 0,
+        operatingExpenses: 0,
+        netOperationalIncome: 0,
+        operatingIncome: 0,
+        tax: 0,
+        totalExpenses: 0,
+        netIncome: 0,
+        cashFlowPreTax: 0,
+        cashFlow: 0,
+        cashAfterPropertySale: 0,
+        totalCashFlowPostTax: 0,
+    };
 
     // Todo: Is this right? should we not remove 13 for the starting index?
     for (let q = months.length - 12; q < months.length; q++) {
-        yearlyCashInHand += months[q].CashInHand;
-        yearlyNetIncome += months[q].NetIncome;
-        yearlyTaxPaid += months[q].Tax;
-        yearlyValueGain += months[q].ValueGain;
-        yearlyIntrestPaid += months[q].IntrestPaid;
-        yearlyPrincipalPaid += months[q].PrincipalPaid;
-        yearlyPropertyTax += months[q].PropertyTax;
+        aggrogatedYear.principalPaid += months[q].principalPaid;
+        aggrogatedYear.intrestPaid += months[q].intrestPaid;
+        aggrogatedYear.propertyTax += months[q].propertyTax;
+        aggrogatedYear.operatingExpenses += months[q].operatingExpenses;
+        aggrogatedYear.netOperationalIncome += months[q].netOperationalIncome;
+        aggrogatedYear.operatingIncome += months[q].operatingIncome;
+        aggrogatedYear.tax += months[q].tax;
+        aggrogatedYear.totalExpenses += months[q].totalExpenses;
+        aggrogatedYear.netIncome += months[q].netIncome;
+        aggrogatedYear.cashFlowPreTax += months[q].cashFlowPreTax;
+        aggrogatedYear.cashFlow += months[q].cashFlow;
     }
+    aggrogatedYear.cashAfterPropertySale += months[months.length - 1].cashAfterPropertySale;
+    aggrogatedYear.totalCashFlowPostTax += months[months.length - 1].totalCashFlowPostTax;
+
+    let year = Math.floor(currentMonth / 12.0);
     return {
-        Year: Math.floor(currentMonth / 12.0),
-        CashInHand: yearlyCashInHand,
-        ValueAtSale: months[months.length - 1].ValueAtSale,
-        NetIncome: yearlyNetIncome,
-        TotalNetIncome: years.length == 0 ? yearlyNetIncome : years[years.length - 1].TotalNetIncome + yearlyNetIncome,
-        TaxPaid: yearlyTaxPaid,
-        ValueGain: yearlyValueGain,
-        TotalValueGain: years.length == 0 ? yearlyValueGain : years[years.length - 1].TotalValueGain + yearlyValueGain,
-        IntrestPaid: yearlyIntrestPaid,
-        PrincipalPaid: yearlyPrincipalPaid,
-        PropertyTax: yearlyPropertyTax,
+        ...aggrogatedYear,
+        year: year,
+        month: 12,
+        capRate: aggrogatedYear.netOperationalIncome / fixedCosts.totalAcquisitionCost,
+        cashOnCashReturn: aggrogatedYear.cashFlowPreTax / fixedCosts.totalAcquisitionCost,
+        cashFlowReturn: aggrogatedYear.cashFlow / fixedCosts.totalAcquisitionCost,
+        propertySaleReturn: (aggrogatedYear.cashAfterPropertySale + aggrogatedYear.totalCashFlowPostTax) / year / fixedCosts.totalAcquisitionCost,
     };
 };
 
@@ -197,36 +218,28 @@ interface IFixedCosts {
 }
 
 export interface IMonthResult {
-    Month: number;
-    Year: number;
-    OutOfPocket: number;
-    PrincipalPaid: number;
-    IntrestPaid: number;
-    RentIncome: number;
-    Expenses: number;
-    NetIncome: number;
-    CashInHand: number;
-    ValueGain: number;
-    TaxableIncome: number;
-    PropertyTax: number;
-    Tax: number;
-    TaxCredit: number;
-    ValueAtSale: number;
-    CashAtSale: number;
+    month: number;
+    year: number;
+    principalPaid: number;
+    intrestPaid: number;
+    propertyTax: number;
+    operatingExpenses: number;
+    netOperationalIncome: number;
+    operatingIncome: number;
+    tax: number;
+    totalExpenses: number;
+    netIncome: number;
+    cashFlowPreTax: number;
+    cashFlow: number;
+    cashAfterPropertySale: number;
+    totalCashFlowPostTax: number;
 }
 
-export interface IYearResult {
-    Year: number;
-    CashInHand: number;
-    ValueAtSale: number;
-    NetIncome: number;
-    TaxPaid: number;
-    ValueGain: number;
-    IntrestPaid: number;
-    PrincipalPaid: number;
-    PropertyTax: number;
-    TotalNetIncome: number;
-    TotalValueGain: number;
+export interface IYearResult extends IMonthResult {
+    capRate: number;
+    cashOnCashReturn: number;
+    cashFlowReturn: number;
+    propertySaleReturn: number;
 }
 
 export interface ISettings {

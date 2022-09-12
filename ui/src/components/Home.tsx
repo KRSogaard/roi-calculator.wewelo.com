@@ -46,35 +46,52 @@ function Home() {
                                 <thead>
                                     <tr>
                                         <th scope="col">Year</th>
-                                        <th scope="col">Monthly CIH</th>
-                                        <th scope="col">CIH %</th>
-                                        <th scope="col">ROI at Sale %</th>
-                                        <th scope="col">Value gain at sale</th>
-                                        <th scope="col">Year net income</th>
-                                        <th scope="col">Year tax paid</th>
-                                        <th scope="col">Year value gain</th>
-                                        <th scope="col">Total value gain</th>
-                                        <th scope="col">Total net income</th>
+                                        <th scope="col" title="Pre-tax casflow devided by the total acquisition cost">
+                                            Cash on Cash Return
+                                        </th>
+                                        <th scope="col" title="Post-tax casflow devided by the total acquisition cost">
+                                            Cash on Cash Return (Post-Tax)
+                                        </th>
+                                        <th scope="col" title="Total cashflow before tax">
+                                            Cashflow (Pre-Tax)
+                                        </th>
+                                        <th scope="col" title="Total cashflow after tax">
+                                            Cashflow (Post-Tax)
+                                        </th>
+                                        <th scope="col" title="Net operational Income / Total acquisition cost, this dose not include mortages and taxes">
+                                            CapRate
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            title="The annual return based sale of the property plus post tax cash flow devided by the total acquisition cost">
+                                            Property Sale Return
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            title="Net operational income: Rent income minus operation expenses such as insurance, utilites, maintenance, management fee and property tax">
+                                            NOI
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            title="Rent income minus vacancy and operation expenses such as insurance, utilites, maintenance, management fee and property tax">
+                                            Operating Income
+                                        </th>
+                                        <th scope="col" title="Cash left after sale, and all expenses has been paid">
+                                            Cash after property sale
+                                        </th>
+                                        <th scope="col" title="all expenses, including taxes">
+                                            Total expenses
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {years &&
                                         years.map((year) => (
-                                            <tr key={'SimulationYear' + year.Year}>
-                                                <td>{year.Year}</td>
+                                            <tr key={'SimulationYear' + year.year}>
+                                                <td>{year.year}</td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.CashInHand / 12}
-                                                        displayType={'text'}
-                                                        thousandSeparator={true}
-                                                        prefix={'$'}
-                                                        decimalScale={2}
-                                                        fixedDecimalScale={true}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <CurrencyFormat
-                                                        value={(year.CashInHand / outOfPocket) * 100}
+                                                        value={year.cashOnCashReturn * 100}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         suffix={'%'}
@@ -84,7 +101,7 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={((year.ValueAtSale / outOfPocket) * 100) / year.Year}
+                                                        value={year.cashFlowReturn * 100}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         suffix={'%'}
@@ -94,7 +111,7 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.ValueAtSale}
+                                                        value={year.cashFlowPreTax}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'$'}
@@ -104,7 +121,7 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.NetIncome}
+                                                        value={year.cashFlow}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'$'}
@@ -114,7 +131,27 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.TaxPaid}
+                                                        value={year.capRate * 100}
+                                                        displayType={'text'}
+                                                        thousandSeparator={true}
+                                                        suffix={'%'}
+                                                        decimalScale={2}
+                                                        fixedDecimalScale={true}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <CurrencyFormat
+                                                        value={year.propertySaleReturn * 100}
+                                                        displayType={'text'}
+                                                        thousandSeparator={true}
+                                                        suffix={'%'}
+                                                        decimalScale={2}
+                                                        fixedDecimalScale={true}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <CurrencyFormat
+                                                        value={year.netOperationalIncome}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'$'}
@@ -124,7 +161,7 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.ValueGain}
+                                                        value={year.operatingIncome}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'$'}
@@ -134,7 +171,7 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.TotalValueGain}
+                                                        value={year.cashAfterPropertySale}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'$'}
@@ -144,7 +181,7 @@ function Home() {
                                                 </td>
                                                 <td>
                                                     <CurrencyFormat
-                                                        value={year.TotalNetIncome}
+                                                        value={year.totalExpenses}
                                                         displayType={'text'}
                                                         thousandSeparator={true}
                                                         prefix={'$'}
