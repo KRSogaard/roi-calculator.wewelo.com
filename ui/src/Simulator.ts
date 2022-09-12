@@ -56,6 +56,7 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
         }
 
         let taxAtSale = calculateLongTermCapitalGainsTax(taxableAtSale);
+        // Todo: Do we not need to pay depriciation back if we sale at a profit?
         let cashAfterPropertySale = cashAtSalePreTax - taxAtSale - input.RemodelCost - fixedCosts.closingCost;
 
         months.push({

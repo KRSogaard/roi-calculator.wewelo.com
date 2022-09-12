@@ -173,7 +173,7 @@ export const Settings = (args: SettingsInput) => {
             )}
             <h4>Closing costs</h4>
             {inputField(
-                'Rehab',
+                'Renovation',
                 register('rehabCost', {
                     required: true,
                     valueAsNumber: true,
@@ -182,7 +182,7 @@ export const Settings = (args: SettingsInput) => {
                 '$'
             )}
             {inputField(
-                'Rehab value increase',
+                'Renovation value increase',
                 register('rehabValueCost', {
                     required: true,
                     valueAsNumber: true,
