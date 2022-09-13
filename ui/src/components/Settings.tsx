@@ -2,6 +2,7 @@ import React, { useState, useEffect, FunctionComponent } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import { ISettings } from '../Simulator';
+import TextField from '@mui/material/TextField';
 
 type CallbackFunction = (input: ISettings) => void;
 interface SettingsInput {
@@ -91,17 +92,21 @@ export const Settings = (args: SettingsInput) => {
             console.log('Errors:', errors);
         }
         return (
+            //     <TextField
+            //   label={title}
+            //   id="outlined-start-adornment"
+            //   sx={{ m: 1, width: '25ch' }}
+            //   InputProps={{
+            //     startAdornment: <InputAdornment position="start">{prefix}</InputAdornment>,
+            //   }}
+            // />
             <div className="form-group row">
                 <label className="col-sm-6" htmlFor={fields.name}>
                     {title}:
                 </label>
                 <div className="col-sm-6">
                     <div className="input-group mb-3">
-                        {prefix !== '' && (
-                            <span className="input-group-text" id="basic-addon3">
-                                {prefix}
-                            </span>
-                        )}
+                        {prefix !== '' && <span className="input-group-text" id="basic-addon3"></span>}
                         <input id={fields.name} type="number" className="form-control form-control-sm" step="any" {...fields} />
                     </div>
                 </div>
