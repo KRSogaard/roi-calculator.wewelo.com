@@ -4,10 +4,10 @@ import { FormText } from 'react-bootstrap';
 const DepreciationOverYears: number = 27.5;
 
 export let runSimulation = (input: ISettings, simulateYears: number): ISimulationResult => {
+    console.log('Running calculation');
     let months: IMonthResult[] = [];
     let years: IYearResult[] = [];
     let fixedCosts = getFixedCosts(input);
-
     let currentRemainingLoan = fixedCosts.totalLoanAtPurchase;
     let currentRent = input.RentIncome;
     let currentHousePrice = input.PurchasePrice + input.RemodelValueIncrease;
@@ -16,7 +16,7 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
 
     let lastDepreciationMonth = DepreciationOverYears * 12;
     for (let currentMonth = 1; currentMonth <= simulateYears * 12; currentMonth++) {
-        if (currentMonth % 12 == 0 && currentMonth != 0) {
+        if (currentMonth % 12 === 0 && currentMonth !== 0) {
             currentRent *= 1 + input.AnnualAppreciationPtc;
         }
 
@@ -36,12 +36,13 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
             propertyTax;
         let netOperationalIncome = currentRent - operatingExpenses;
         let operatingIncome = currentRent - operatingExpenses - currentRent * input.VacancyRatePtc;
-
         let taxableIncome = operatingIncome - intrest;
         let taxCalculation = calculateTex(taxableIncome, depreciation, input.TaxRatePtc, taxCredit);
         taxCredit = taxCalculation.taxCredit;
-        let totalExpenses = operatingExpenses - currentRent * input.VacancyRatePtc - intrest - taxCalculation.tax;
-        let netIncome = operatingIncome - totalExpenses;
+        let totalExpenses = operatingExpenses + currentRent * input.VacancyRatePtc + intrest + taxCalculation.tax;
+
+        // Operatring expenses is already subtracted from operationg income and added totalExpenses, we should only count that once
+        let netIncome = operatingIncome - totalExpenses + operatingExpenses;
         let cashFlow = netIncome - principal;
         let cashFlowPreTax = cashFlow + taxCalculation.tax;
 
@@ -77,7 +78,7 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
             totalCashFlowPostTax: totalCashFlowPostTax,
         });
 
-        if (currentMonth % 12 == 0) {
+        if (currentMonth % 12 === 0) {
             years.push(aggregateYear(currentMonth, months, years, fixedCosts));
         }
 
@@ -160,8 +161,8 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
         year: year,
         month: 12,
         capRate: aggrogatedYear.netOperationalIncome / fixedCosts.totalAcquisitionCost,
-        cashOnCashReturn: aggrogatedYear.cashFlowPreTax / fixedCosts.totalAcquisitionCost,
-        cashFlowReturn: aggrogatedYear.cashFlow / fixedCosts.totalAcquisitionCost,
+        cashOnCashReturn: aggrogatedYear.cashFlowPreTax / fixedCosts.purchaseTotalOutOfPocket,
+        cashFlowReturn: aggrogatedYear.cashFlow / fixedCosts.purchaseTotalOutOfPocket,
         propertySaleReturn: (aggrogatedYear.cashAfterPropertySale + aggrogatedYear.totalCashFlowPostTax) / year / fixedCosts.totalAcquisitionCost,
     };
 };
@@ -181,12 +182,8 @@ let calculateLongTermCapitalGainsTax = (valueGain: number): number => {
     return bracker1 * 0.0 + bracker2 * 0.15 + bracker3 * 0.2;
 };
 
-let round = (number: number): number => {
-    return Math.round(number * 100) / 100;
-};
-
 let getFixedCosts = (input: ISettings): IFixedCosts => {
-    let fixedCosts: IFixedCosts = <any>{};
+    let fixedCosts: IFixedCosts = {} as any;
     fixedCosts.totalLoanAtPurchase = input.PurchasePrice * (1 - input.DownPaymentPtc);
     fixedCosts.downPayment = input.PurchasePrice * input.DownPaymentPtc;
     fixedCosts.closingCost = input.LoanFee + input.PurchasePrice * input.EscrowPtc;

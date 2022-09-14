@@ -9,6 +9,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import SimulationResultRow from './SimulationResultRow';
 
 interface SimulationResultsProps {
     result: ISimulationResult | undefined;
@@ -19,26 +20,6 @@ function SimulationResults(props: SimulationResultsProps) {
     if (props.result !== undefined) {
         years = props.result.years;
     }
-
-    const StyledTableCell = styled(TableCell)(({ theme }) => ({
-        [`&.${tableCellClasses.head}`]: {
-            backgroundColor: theme.palette.common.black,
-            color: theme.palette.common.white,
-        },
-        [`&.${tableCellClasses.body}`]: {
-            fontSize: 14,
-        },
-    }));
-
-    const StyledTableRow = styled(TableRow)(({ theme }) => ({
-        '&:nth-of-type(odd)': {
-            backgroundColor: theme.palette.action.hover,
-        },
-        // hide last border
-        '&:last-child td, &:last-child th': {
-            border: 0,
-        },
-    }));
 
     return (
         <TableContainer component={Paper}>
@@ -72,116 +53,7 @@ function SimulationResults(props: SimulationResultsProps) {
                         <TableCell title="all expenses, including taxes">Total expenses</TableCell>
                     </TableRow>
                 </TableHead>
-                <TableBody>
-                    {years &&
-                        years.map((year) => (
-                            <StyledTableRow key={'SimulationYear' + year.year} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                <StyledTableCell component="th" scope="row" align="right">
-                                    {year.year}
-                                </StyledTableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.cashOnCashReturn * 100}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        suffix={'%'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.cashFlowReturn * 100}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        suffix={'%'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.cashFlowPreTax}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        prefix={'$'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.cashFlow}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        prefix={'$'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.capRate * 100}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        suffix={'%'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.propertySaleReturn * 100}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        suffix={'%'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.netOperationalIncome}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        prefix={'$'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.operatingIncome}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        prefix={'$'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.cashAfterPropertySale}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        prefix={'$'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CurrencyFormat
-                                        value={year.totalExpenses}
-                                        displayType={'text'}
-                                        thousandSeparator={true}
-                                        prefix={'$'}
-                                        decimalScale={2}
-                                        fixedDecimalScale={true}
-                                    />
-                                </TableCell>
-                            </StyledTableRow>
-                        ))}
-                </TableBody>
+                <TableBody>{years && years.map((year) => <SimulationResultRow key={'SimulationYear' + year.year} year={year} />)}</TableBody>
             </Table>
         </TableContainer>
     );
