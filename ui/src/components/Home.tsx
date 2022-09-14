@@ -33,7 +33,7 @@ function Home() {
 
     return (
         <div className="App">
-            <Header></Header>
+            {/* <Header></Header> */}
             <Grid container spacing={2} margin={2}>
                 <Grid xs={12} md={3}>
                     <Settings onSettingsChange={onSettingsChange} />

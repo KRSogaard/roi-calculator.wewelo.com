@@ -3,352 +3,463 @@ import { useForm, Controller } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import { ISettings } from '../Simulator';
 import TextField from '@mui/material/TextField';
+import SettingsInputField from './SettingsInputField';
+import CurrencyFormat from 'react-currency-format';
+import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
 type CallbackFunction = (input: ISettings) => void;
 interface SettingsInput {
+    defaults?: ISettings;
     onSettingsChange: CallbackFunction;
 }
 export const Settings = (args: SettingsInput) => {
     const [downPaymentValue, setDownPaymentValue] = useState(0);
     const [totalClosing, setTotalClosing] = useState(0);
+    const [canSubmit, setCanSubmit] = useState(false);
 
-    const {
-        register,
-        handleSubmit,
-        watch,
-        control,
-        formState: { errors },
-    } = useForm({
-        shouldUseNativeValidation: true,
-        reValidateMode: 'onChange',
-        defaultValues: {
-            purchasePrice: 1500000,
-            downPaymentPtc: 20,
-            landValuePtc: 60,
-            loanFees: 5000,
-            escrowFeesPtc: 1,
-            rehabCost: 80000,
-            rehabValueCost: 300000,
-            loanRatePtc: 3.5,
-            loanTerms: 12 * 30,
-            rentIncome: 10800,
-            managementFeePtc: 0,
-            maintenanceCostPtc: 5,
-            taxRatePtc: 25,
-            propertyTaxPtc: 1.25,
-            vacancyRatePtc: 5,
-            annualAppreciationPtc: 1,
-            annualRentIncreasePtc: 1,
-            annualUtilities: 2700,
-            annualInsurance: 2300,
-            annualOtherCosts: 1200,
-            salesFeesPtc: 3,
-        },
-    });
+    let defaults = args.defaults;
+    console.log('Defaults:', defaults);
 
-    const watchDownpayment = watch(['purchasePrice', 'downPaymentPtc']);
-    const watchTotalClosing = watch(['purchasePrice', 'downPaymentPtc', 'loanFees', 'escrowFeesPtc', 'rehabCost']);
-    React.useEffect(() => {
-        setDownPaymentValue(watchDownpayment[0] * (watchDownpayment[1] / 100.0));
-    }, [watchDownpayment]);
-    React.useEffect(() => {
-        setTotalClosing(
-            watchTotalClosing[0] * (watchTotalClosing[1] / 100.0) +
-                watchTotalClosing[2] +
-                watchTotalClosing[0] * (watchTotalClosing[3] / 100.0) +
-                watchTotalClosing[4]
-        );
-    }, [watchTotalClosing]);
+    const [purchasePrice, setPurchasePrice] = useState<string>(defaults ? defaults.PurchasePrice.toString() : '');
+    const [landValuePtc, setLandValuePtc] = useState<string>(defaults ? defaults.LandValuePtc.toString() : '');
+    const [downPaymentPtc, setDownPaymentPtc] = useState<string>(defaults ? (defaults.DownPaymentPtc * 100).toString() : '');
+    const [loanFees, setLoanFees] = useState<string>(defaults ? defaults.LoanFee.toString() : '');
+    const [escrowPtc, setEscrowPtc] = useState<string>(defaults ? (defaults.EscrowPtc * 100).toString() : '');
+    const [loanRatePtc, setLoanRatePtc] = useState<string>(defaults ? (defaults.LoanPtc * 100).toString() : '');
+    const [loanTerm, setLoanTerm] = useState<string>(defaults ? defaults.LoanTerms.toString() : '');
+    const [rentIncome, setRentIncome] = useState<string>(defaults ? defaults.RentIncome.toString() : '');
+    const [remodelCost, setRemodelCost] = useState<string>(defaults ? defaults.RemodelCost.toString() : '');
+    const [remodelValueIncrease, setRemodelValueIncrease] = useState<string>(defaults ? defaults.RemodelValueIncrease.toString() : '');
+    const [managementFeePtc, setManagementFeePtc] = useState<string>(defaults ? (defaults.ManagementFeePtc * 100).toString() : '');
+    const [maintenanceCostPtc, setMaintenanceCostPtc] = useState<string>(defaults ? (defaults.MaintenanceCostPtc * 100).toString() : '');
+    const [taxRatePtc, setTaxRatePtc] = useState<string>(defaults ? (defaults.TaxRatePtc * 100).toString() : '');
+    const [propertyTaxPtc, setPropertyTaxPtc] = useState<string>(defaults ? (defaults.PropertyTaxPtc * 100).toString() : '');
+    const [vacancyRatePtc, setVacancyRatePtc] = useState<string>(defaults ? (defaults.VacancyRatePtc * 100).toString() : '');
+    const [annualAppreciationPtc, setAnnualAppreciationPtc] = useState<string>(defaults ? (defaults.AnnualAppreciationPtc * 100).toString() : '');
+    const [annualRentIncreasePtc, setAnnualRentIncreasePtc] = useState<string>(defaults ? (defaults.AnnualRentPtc * 100).toString() : '');
+    const [annualUtilities, setAnnualUtilities] = useState<string>(defaults ? defaults.AnnualUtilities.toString() : '');
+    const [annualInsurance, setAnnualInsurance] = useState<string>(defaults ? defaults.AnnualInsurance.toString() : '');
+    const [annualOtherCosts, setAnnualOtherCosts] = useState<string>(defaults ? defaults.AnnualOtherCost.toString() : '');
+    const [salesFeesPtc, setSalesFeesPtc] = useState<string>(defaults ? (defaults.SalesFeesPtc * 100).toString() : '');
 
-    const onSubmit = (data: any, e: any) => {
-        args.onSettingsChange({
-            PurchasePrice: data.purchasePrice,
-            LandValuePtc: data.landValuePtc / 100,
-            DownPaymentPtc: data.downPaymentPtc / 100,
-            LoanFee: data.loanFees,
-            EscrowPtc: data.escrowFeesPtc / 100,
-            LoanPtc: data.loanRatePtc / 100,
-            LoanTerms: data.loanTerms,
-            RentIncome: data.rentIncome,
-            RemodelCost: data.rehabCost,
-            RemodelValueIncrease: data.rehabValueCost,
-            ManagementFeePtc: data.managementFeePtc / 100,
-            MaintenanceCostPtc: data.maintenanceCostPtc / 100,
-            TaxRatePtc: data.taxRatePtc / 100,
-            PropertyTaxPtc: data.propertyTaxPtc / 100,
-            VacancyRatePtc: data.vacancyRatePtc / 100,
-            AnnualAppreciationPtc: data.annualAppreciationPtc / 100,
-            AnnualRentPtc: data.annualRentIncreasePtc / 100,
-            AnnualUtilities: data.annualUtilities,
-            AnnualInsurance: data.annualInsurance,
-            AnnualOtherCost: data.annualOtherCosts,
-            SalesFeesPtc: data.salesFeesPtc / 100,
-        });
-    };
-    const onError = (errors: any, e: any) => console.log('Error', errors, e);
-
-    var inputField = (title: string, fields: any, prefix?: string, errors?: any) => {
-        if (errors) {
-            console.log('Errors:', errors);
+    const parse = (v: string): number => {
+        if (Number(v.replace(/,/g, '')) === NaN) {
+            return 0;
         }
-        return (
-            //     <TextField
-            //   label={title}
-            //   id="outlined-start-adornment"
-            //   sx={{ m: 1, width: '25ch' }}
-            //   InputProps={{
-            //     startAdornment: <InputAdornment position="start">{prefix}</InputAdornment>,
-            //   }}
-            // />
-            <div className="form-group row">
-                <label className="col-sm-6" htmlFor={fields.name}>
-                    {title}:
-                </label>
-                <div className="col-sm-6">
-                    <div className="input-group mb-3">
-                        {prefix !== '' && <span className="input-group-text" id="basic-addon3"></span>}
-                        <input id={fields.name} type="number" className="form-control form-control-sm" step="any" {...fields} />
-                    </div>
-                </div>
-            </div>
+        return parseFloat(v.replace(/,/g, ''));
+    };
+
+    React.useEffect(() => {
+        if (purchasePrice === '' || downPaymentPtc === '') {
+            setDownPaymentValue(0);
+        }
+        setDownPaymentValue(parse(purchasePrice) * (parse(downPaymentPtc) / 100.0));
+    }, [downPaymentPtc, purchasePrice]);
+
+    React.useEffect(() => {
+        if (purchasePrice === '' || downPaymentPtc === '') {
+            setTotalClosing(0);
+        }
+        setTotalClosing(
+            parse(purchasePrice) * (parse(downPaymentPtc) / 100.0) + parse(loanFees) + parse(purchasePrice) * (parse(escrowPtc) / 100.0) + parse(remodelCost)
         );
+    }, [purchasePrice, downPaymentPtc, loanFees, escrowPtc, remodelCost]);
+
+    React.useEffect(() => {
+        setCanSubmit(
+            purchasePrice.length > 0 &&
+                parse(purchasePrice) > 0 &&
+                downPaymentPtc.length > 0 &&
+                parse(downPaymentPtc) > 0 &&
+                loanFees.length > 0 &&
+                parse(loanFees) > 0 &&
+                escrowPtc.length > 0 &&
+                parse(escrowPtc) > 0 &&
+                loanRatePtc.length > 0 &&
+                parse(loanRatePtc) > 0 &&
+                loanTerm.length > 0 &&
+                parse(loanTerm) > 0 &&
+                rentIncome.length > 0 &&
+                parse(rentIncome) > 0 &&
+                remodelCost.length > 0 &&
+                parse(remodelCost) > 0 &&
+                remodelValueIncrease.length > 0 &&
+                parse(remodelValueIncrease) > 0 &&
+                managementFeePtc.length > 0 &&
+                parse(managementFeePtc) > 0 &&
+                maintenanceCostPtc.length > 0 &&
+                parse(maintenanceCostPtc) > 0 &&
+                taxRatePtc.length > 0 &&
+                parse(taxRatePtc) > 0 &&
+                propertyTaxPtc.length > 0 &&
+                parse(propertyTaxPtc) > 0 &&
+                vacancyRatePtc.length > 0 &&
+                parse(vacancyRatePtc) > 0 &&
+                annualAppreciationPtc.length > 0 &&
+                parse(annualAppreciationPtc) > 0 &&
+                annualRentIncreasePtc.length > 0 &&
+                parse(annualRentIncreasePtc) > 0 &&
+                annualUtilities.length > 0 &&
+                parse(annualUtilities) > 0 &&
+                annualInsurance.length > 0 &&
+                parse(annualInsurance) > 0 &&
+                annualOtherCosts.length > 0 &&
+                parse(annualOtherCosts) > 0 &&
+                salesFeesPtc.length > 0 &&
+                parse(salesFeesPtc) > 0
+        );
+    }, [
+        purchasePrice,
+        landValuePtc,
+        downPaymentPtc,
+        loanFees,
+        escrowPtc,
+        loanRatePtc,
+        loanTerm,
+        rentIncome,
+        remodelCost,
+        remodelValueIncrease,
+        managementFeePtc,
+        maintenanceCostPtc,
+        taxRatePtc,
+        propertyTaxPtc,
+        vacancyRatePtc,
+        annualAppreciationPtc,
+        annualRentIncreasePtc,
+        annualUtilities,
+        annualInsurance,
+        annualOtherCosts,
+        salesFeesPtc,
+    ]);
+
+    const onSubmit = (e: any) => {
+        e.preventDefault();
+        if (!canSubmit) {
+            return;
+        }
+
+        args.onSettingsChange({
+            PurchasePrice: parse(purchasePrice),
+            LandValuePtc: parse(landValuePtc) / 100,
+            DownPaymentPtc: parse(downPaymentPtc) / 100,
+            LoanFee: parse(loanFees),
+            EscrowPtc: parse(escrowPtc) / 100,
+            LoanPtc: parse(loanRatePtc) / 100,
+            LoanTerms: parse(loanTerm),
+            RentIncome: parse(rentIncome),
+            RemodelCost: parse(remodelCost),
+            RemodelValueIncrease: parse(remodelValueIncrease) / 100,
+            ManagementFeePtc: parse(managementFeePtc) / 100,
+            MaintenanceCostPtc: parse(maintenanceCostPtc) / 100,
+            TaxRatePtc: parse(taxRatePtc) / 100,
+            PropertyTaxPtc: parse(propertyTaxPtc) / 100,
+            VacancyRatePtc: parse(vacancyRatePtc) / 100,
+            AnnualAppreciationPtc: parse(annualAppreciationPtc) / 100,
+            AnnualRentPtc: parse(annualRentIncreasePtc) / 100,
+            AnnualUtilities: parse(annualUtilities),
+            AnnualInsurance: parse(annualInsurance),
+            AnnualOtherCost: parse(annualOtherCosts),
+            SalesFeesPtc: parse(salesFeesPtc) / 100,
+        });
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
-            {inputField(
-                'Purchase Price',
-                register('purchasePrice', {
-                    required: true,
-                    valueAsNumber: true,
-                }),
-                '$'
-            )}
-            {inputField(
-                'Land value',
-                register('landValuePtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Down payment',
-                register('downPaymentPtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            <div className="form-group row">
-                <label className="col-sm-6" htmlFor="downPayment">
-                    Down payment:
-                </label>
-                <div className="col-sm-6">
-                    <div className="input-group mb-3">
-                        <span className="input-group-text" id="basic-addon3">
-                            $
-                        </span>
-                        <input type="number" id="downPayment" className="form-control" value={downPaymentValue.toFixed(2)} readOnly disabled />
-                    </div>
-                </div>
-            </div>
-            <h4>Closing costs</h4>
-            {inputField(
-                'Loan Fees',
-                register('loanFees', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$'
-            )}
-            {inputField(
-                'Escrow Fees',
-                register('escrowFeesPtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '%'
-            )}
-            <h4>Closing costs</h4>
-            {inputField(
-                'Renovation',
-                register('rehabCost', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$'
-            )}
-            {inputField(
-                'Renovation value increase',
-                register('rehabValueCost', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$'
-            )}
-            <div className="form-group row">
-                <label className="col-sm-6" htmlFor="downPayment">
-                    Total Closing:
-                </label>
-                <div className="col-sm-6">
-                    <div className="input-group mb-3">
-                        <span className="input-group-text" id="basic-addon3">
-                            $
-                        </span>
-                        <input type="number" id="downPayment" className="form-control" value={totalClosing} readOnly disabled />
-                    </div>
-                </div>
-            </div>
-            <hr />
-            {inputField(
-                'Loan Rate',
-                register('loanRatePtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Loan Rate',
-                register('loanTerms', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                'months'
-            )}
-            {inputField(
-                'Rent Income',
-                register('rentIncome', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$',
-                errors.rentIncome
-            )}
-            {inputField(
-                'Management Fee',
-                register('managementFeePtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Maintenance Cost',
-                register('maintenanceCostPtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Tax Rate',
-                register('taxRatePtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Property Tax',
-                register('propertyTaxPtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Vacancy rate',
-                register('vacancyRatePtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-
-            {inputField(
-                'Annual appreciation increase',
-                register('annualAppreciationPtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Annual rent increase',
-                register('annualRentIncreasePtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            {inputField(
-                'Annual utilities',
-                register('annualUtilities', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$'
-            )}
-            {inputField(
-                'Annual insurance',
-                register('annualInsurance', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$'
-            )}
-            {inputField(
-                'Annual other costs',
-                register('annualOtherCosts', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                }),
-                '$'
-            )}
-            {inputField(
-                'Sales Fee',
-                register('salesFeesPtc', {
-                    required: true,
-                    valueAsNumber: true,
-                    min: 0,
-                    max: 100,
-                }),
-                '%'
-            )}
-            <div className="form-group row">
-                <input type="submit" value="Calculate" />
-            </div>
+        <form onSubmit={onSubmit}>
+            <Box sx={{ width: '100%' }}>
+                <Paper sx={{ padding: 2 }}>
+                    <Stack spacing={2}>
+                        <Grid container alignItems="center">
+                            <Grid item xs>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Settings
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Divider variant="middle" />
+                        <SettingsInputField
+                            fieldValue={purchasePrice}
+                            setFieldValue={setPurchasePrice}
+                            fieldName="purchasePrice"
+                            fieldLable="Purchase Price"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={landValuePtc}
+                            setFieldValue={setLandValuePtc}
+                            fieldName="landValuePtc"
+                            fieldLable="Land value"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={downPaymentPtc}
+                            setFieldValue={setDownPaymentPtc}
+                            fieldName="downPaymentPtc"
+                            fieldLable="Down payment"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <Divider variant="middle" />
+                        <Grid container alignItems="center">
+                            <Grid item xs>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Down payment:
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant="h6" component="div">
+                                    <CurrencyFormat
+                                        value={downPaymentValue}
+                                        displayType={'text'}
+                                        thousandSeparator={true}
+                                        prefix={'$'}
+                                        decimalScale={2}
+                                        fixedDecimalScale={true}
+                                    />
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Divider variant="middle" />
+                        <Grid container alignItems="center">
+                            <Grid item xs>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Closing costs
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <SettingsInputField
+                            fieldValue={loanFees}
+                            setFieldValue={setLoanFees}
+                            fieldName="loanFees"
+                            fieldLable="Loan Fees"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={escrowPtc}
+                            setFieldValue={setEscrowPtc}
+                            fieldName="escrowFeesPtc"
+                            fieldLable="Escrow Fees"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={remodelCost}
+                            setFieldValue={setRemodelCost}
+                            fieldName="remodelCost"
+                            fieldLable="Remodeling Cost"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={remodelValueIncrease}
+                            setFieldValue={setRemodelValueIncrease}
+                            fieldName="remodelValueIncrease"
+                            fieldLable="Remodeling value increase"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <Divider variant="middle" />
+                        <Grid container alignItems="center">
+                            <Grid item xs>
+                                <Typography gutterBottom variant="h5" component="div">
+                                    Total Closing:
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography gutterBottom variant="h6" component="div">
+                                    <CurrencyFormat
+                                        value={totalClosing}
+                                        displayType={'text'}
+                                        thousandSeparator={true}
+                                        prefix={'$'}
+                                        decimalScale={2}
+                                        fixedDecimalScale={true}
+                                    />
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Divider variant="middle" />
+                        <SettingsInputField
+                            fieldValue={loanRatePtc}
+                            setFieldValue={setLoanRatePtc}
+                            fieldName="loanRatePtc"
+                            fieldLable="Loan Rate"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={loanTerm}
+                            setFieldValue={setLoanTerm}
+                            fieldName="loanTerms"
+                            fieldLable="Loan Terms"
+                            surfix="months"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={rentIncome}
+                            setFieldValue={setRentIncome}
+                            fieldName="rentIncome"
+                            fieldLable="Rent Income"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={managementFeePtc}
+                            setFieldValue={setManagementFeePtc}
+                            fieldName="managementFeePtc"
+                            fieldLable="Management Fee"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={maintenanceCostPtc}
+                            setFieldValue={setMaintenanceCostPtc}
+                            fieldName="maintenanceCostPtc"
+                            fieldLable="Maintenance Cost"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={taxRatePtc}
+                            setFieldValue={setTaxRatePtc}
+                            fieldName="taxRatePtc"
+                            fieldLable="Tax Rate"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={propertyTaxPtc}
+                            setFieldValue={setPropertyTaxPtc}
+                            fieldName="propertyTaxPtc"
+                            fieldLable="Property Tax"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={vacancyRatePtc}
+                            setFieldValue={setVacancyRatePtc}
+                            fieldName="vacancyRatePtc"
+                            fieldLable="Vacancy rate"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={annualAppreciationPtc}
+                            setFieldValue={setAnnualAppreciationPtc}
+                            fieldName="annualAppreciationPtc"
+                            fieldLable="Annual appreciation increase"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={annualRentIncreasePtc}
+                            setFieldValue={setAnnualRentIncreasePtc}
+                            fieldName="annualRentIncreasePtc"
+                            fieldLable="Annual rent increase"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={annualUtilities}
+                            setFieldValue={setAnnualUtilities}
+                            fieldName="annualUtilities"
+                            fieldLable="Annual utilities"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={annualInsurance}
+                            setFieldValue={setAnnualInsurance}
+                            fieldName="annualInsurance"
+                            fieldLable="Annual insurance"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={annualOtherCosts}
+                            setFieldValue={setAnnualOtherCosts}
+                            fieldName="annualOtherCosts"
+                            fieldLable="Annual other costs"
+                            prefix="$"
+                            rules={{
+                                min: 0,
+                            }}
+                        />
+                        <SettingsInputField
+                            fieldValue={salesFeesPtc}
+                            setFieldValue={setSalesFeesPtc}
+                            fieldName="salesFeesPtc"
+                            fieldLable="Sales Fee"
+                            surfix="%"
+                            rules={{
+                                min: 0,
+                                max: 100,
+                            }}
+                        />
+                        <Button variant="contained" type="submit" disabled={canSubmit}>
+                            Calculate
+                        </Button>
+                    </Stack>
+                </Paper>
+            </Box>
         </form>
     );
 };
