@@ -15,7 +15,7 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
     let totalCashFlowPostTax = 0;
 
     let lastDepreciationMonth = DepreciationOverYears * 12;
-    for (let currentMonth = 1; currentMonth <= simulateYears * 12; currentMonth++) {
+    for (let currentMonth = 1; currentMonth < simulateYears * 12; currentMonth++) {
         if (currentMonth % 12 === 0 && currentMonth !== 0) {
             currentRent *= 1 + input.AnnualAppreciationPtc;
         }
@@ -50,15 +50,25 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
         currentRemainingLoan -= principal;
 
         let propertySalesFees = currentHousePrice * input.SalesFeesPtc;
-        let cashAtSalePreTax = currentHousePrice - propertySalesFees - fixedCosts.downPayment - currentRemainingLoan;
+        let cashAtSalePreTax = currentHousePrice - propertySalesFees - currentRemainingLoan - fixedCosts.purchaseTotalOutOfPocket;
+        console.log(
+            'Cash at sale pre tax: ' + cashAtSalePreTax,
+            currentHousePrice,
+            propertySalesFees,
+            currentRemainingLoan,
+            fixedCosts.purchaseTotalOutOfPocket
+        );
         let taxableAtSale = cashAtSalePreTax - taxCredit;
         if (taxableAtSale < 0) {
             taxableAtSale = 0;
         }
 
         let taxAtSale = calculateLongTermCapitalGainsTax(taxableAtSale);
+        console.log('Tax at sale: ' + taxAtSale);
         // Todo: Do we not need to pay depriciation back if we sale at a profit?
-        let cashAfterPropertySale = cashAtSalePreTax - taxAtSale - input.RemodelCost - fixedCosts.closingCost;
+        let cashAfterPropertySale = cashAtSalePreTax - taxAtSale;
+        console.log('Cash after property sale: ' + cashAfterPropertySale, cashAtSalePreTax, taxAtSale);
+        let totalProfit = cashAfterPropertySale - totalCashFlowPostTax;
 
         months.push({
             month: currentMonth,
@@ -77,6 +87,9 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
             cashAfterPropertySale: cashAfterPropertySale,
             totalCashFlowPostTax: totalCashFlowPostTax,
             houseValue: currentHousePrice,
+            totalProfit: totalProfit,
+            rent: currentRent,
+            remainingLoan: currentRemainingLoan,
         });
 
         if (currentMonth % 12 === 0) {
@@ -138,6 +151,9 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
         cashAfterPropertySale: 0,
         totalCashFlowPostTax: 0,
         houseValue: 0,
+        totalProfit: 0,
+        rent: 0,
+        remainingLoan: 0,
     };
 
     // Todo: Is this right? should we not remove 13 for the starting index?
@@ -157,8 +173,19 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
     aggrogatedYear.cashAfterPropertySale += months[months.length - 1].cashAfterPropertySale;
     aggrogatedYear.totalCashFlowPostTax += months[months.length - 1].totalCashFlowPostTax;
     aggrogatedYear.houseValue += months[months.length - 1].houseValue;
+    aggrogatedYear.totalProfit += months[months.length - 1].totalProfit;
+    aggrogatedYear.rent += months[months.length - 1].rent;
+    aggrogatedYear.remainingLoan += months[months.length - 1].remainingLoan;
 
     let year = Math.floor(currentMonth / 12.0);
+    console.log(
+        'propertySaleReturn',
+        (aggrogatedYear.cashAfterPropertySale + aggrogatedYear.totalCashFlowPostTax) / year / fixedCosts.purchaseTotalOutOfPocket,
+        aggrogatedYear.cashAfterPropertySale,
+        aggrogatedYear.totalCashFlowPostTax,
+        year,
+        fixedCosts.purchaseTotalOutOfPocket
+    );
     return {
         ...aggrogatedYear,
         year: year,
@@ -166,7 +193,7 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
         capRate: aggrogatedYear.netOperationalIncome / fixedCosts.totalAcquisitionCost,
         cashOnCashReturn: aggrogatedYear.cashFlowPreTax / fixedCosts.purchaseTotalOutOfPocket,
         cashFlowReturn: aggrogatedYear.cashFlow / fixedCosts.purchaseTotalOutOfPocket,
-        propertySaleReturn: (aggrogatedYear.cashAfterPropertySale + aggrogatedYear.totalCashFlowPostTax) / year / fixedCosts.totalAcquisitionCost,
+        propertySaleReturn: (aggrogatedYear.cashAfterPropertySale + aggrogatedYear.totalCashFlowPostTax) / year / fixedCosts.purchaseTotalOutOfPocket,
     };
 };
 
@@ -235,6 +262,9 @@ export interface IMonthResult {
     cashAfterPropertySale: number;
     totalCashFlowPostTax: number;
     houseValue: number;
+    totalProfit: number;
+    rent: number;
+    remainingLoan: number;
 }
 
 export interface IYearResult extends IMonthResult {

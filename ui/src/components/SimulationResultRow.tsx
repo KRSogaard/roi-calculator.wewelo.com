@@ -357,6 +357,30 @@ function SimulationResultRow(props: SimulationResultRowProps) {
                                     fixedDecimalScale={true}
                                 />
                             </Grid>
+                            <Grid xs={4}>
+                                <b>Total profit:</b>
+                                <CurrencyFormat
+                                    style={{ marginLeft: '5px' }}
+                                    value={round(year.totalProfit)}
+                                    displayType={'text'}
+                                    thousandSeparator={true}
+                                    prefix={'$'}
+                                    decimalScale={2}
+                                    fixedDecimalScale={true}
+                                />
+                            </Grid>
+                            <Grid xs={4}>
+                                <b>Remaining loan:</b>
+                                <CurrencyFormat
+                                    style={{ marginLeft: '5px' }}
+                                    value={round(year.remainingLoan)}
+                                    displayType={'text'}
+                                    thousandSeparator={true}
+                                    prefix={'$'}
+                                    decimalScale={2}
+                                    fixedDecimalScale={true}
+                                />
+                            </Grid>
                         </Grid>
                     </TableCell>
                 </TableRow>

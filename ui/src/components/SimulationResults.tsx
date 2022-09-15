@@ -41,7 +41,7 @@ function SimulationResults(props: SimulationResultsProps) {
                         </TableCell>
                         <TableCell title="Net operational Income / Total acquisition cost, this dose not include mortages and taxes">CapRate</TableCell>
                         <TableCell title="The annual return based sale of the property plus post tax cash flow devided by the total acquisition cost">
-                            Property Sale Return
+                            Total Property Sale Return
                         </TableCell>
                         <TableCell title="Net operational income: Rent income minus operation expenses such as insurance, utilites, maintenance, management fee and property tax">
                             NOI
