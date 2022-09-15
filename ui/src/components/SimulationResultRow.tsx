@@ -13,6 +13,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import Grid from '@mui/material/Unstable_Grid2';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 interface SimulationResultRowProps {
     year: IYearResult;
@@ -167,22 +169,25 @@ function SimulationResultRow(props: SimulationResultRowProps) {
                     <TableCell colSpan={11}>
                         <Grid container spacing={2}>
                             <Grid xs={12}>
-                                <ButtonGroup variant="outlined" aria-label="outlined primary button group">
-                                    <Button
-                                        disabled={devider === 1}
-                                        onClick={(e) => {
-                                            setDevider(1);
-                                        }}>
+                                <ToggleButtonGroup
+                                    color="primary"
+                                    value={devider}
+                                    exclusive
+                                    onChange={(event: React.MouseEvent<HTMLElement>, newValue: number | null) => {
+                                        console.log('New: ', newValue);
+                                        if (!newValue) {
+                                            return;
+                                        }
+                                        setDevider(newValue);
+                                    }}
+                                    aria-label="text alignment">
+                                    <ToggleButton value={1} aria-label="centered">
                                         Year
-                                    </Button>
-                                    <Button
-                                        disabled={devider === 12}
-                                        onClick={(e) => {
-                                            setDevider(12);
-                                        }}>
+                                    </ToggleButton>
+                                    <ToggleButton value={12} aria-label="centered">
                                         Month
-                                    </Button>
-                                </ButtonGroup>
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
                             </Grid>
                             <Grid xs={4}>
                                 <b>Principal:</b>
@@ -309,6 +314,18 @@ function SimulationResultRow(props: SimulationResultRowProps) {
                                 <CurrencyFormat
                                     style={{ marginLeft: '5px' }}
                                     value={round(year.cashFlow / devider)}
+                                    displayType={'text'}
+                                    thousandSeparator={true}
+                                    prefix={'$'}
+                                    decimalScale={2}
+                                    fixedDecimalScale={true}
+                                />
+                            </Grid>
+                            <Grid xs={4}>
+                                <b>House value:</b>
+                                <CurrencyFormat
+                                    style={{ marginLeft: '5px' }}
+                                    value={round(year.houseValue)}
                                     displayType={'text'}
                                     thousandSeparator={true}
                                     prefix={'$'}

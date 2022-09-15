@@ -1,8 +1,5 @@
-import React, { useState, useEffect, FunctionComponent } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { NumericFormat } from 'react-number-format';
+import React, { useState } from 'react';
 import { ISettings } from '../Simulator';
-import TextField from '@mui/material/TextField';
 import SettingsInputField from './SettingsInputField';
 import CurrencyFormat from 'react-currency-format';
 import Grid from '@mui/material/Grid';
@@ -10,9 +7,9 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
-
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import { parse } from '../utils';
 
 type CallbackFunction = (input: ISettings) => void;
 interface SettingsInput {
@@ -22,13 +19,12 @@ interface SettingsInput {
 export const Settings = (args: SettingsInput) => {
     const [downPaymentValue, setDownPaymentValue] = useState(0);
     const [totalClosing, setTotalClosing] = useState(0);
-    const [canSubmit, setCanSubmit] = useState(false);
 
     let defaults = args.defaults;
     console.log('Defaults:', defaults);
 
     const [purchasePrice, setPurchasePrice] = useState<string>(defaults ? defaults.PurchasePrice.toString() : '');
-    const [landValuePtc, setLandValuePtc] = useState<string>(defaults ? defaults.LandValuePtc.toString() : '');
+    const [landValuePtc, setLandValuePtc] = useState<string>(defaults ? (defaults.LandValuePtc * 100).toString() : '');
     const [downPaymentPtc, setDownPaymentPtc] = useState<string>(defaults ? (defaults.DownPaymentPtc * 100).toString() : '');
     const [loanFees, setLoanFees] = useState<string>(defaults ? defaults.LoanFee.toString() : '');
     const [escrowPtc, setEscrowPtc] = useState<string>(defaults ? (defaults.EscrowPtc * 100).toString() : '');
@@ -49,13 +45,6 @@ export const Settings = (args: SettingsInput) => {
     const [annualOtherCosts, setAnnualOtherCosts] = useState<string>(defaults ? defaults.AnnualOtherCost.toString() : '');
     const [salesFeesPtc, setSalesFeesPtc] = useState<string>(defaults ? (defaults.SalesFeesPtc * 100).toString() : '');
 
-    const parse = (v: string): number => {
-        if (Number(v.replace(/,/g, '')) === NaN) {
-            return 0;
-        }
-        return parseFloat(v.replace(/,/g, ''));
-    };
-
     React.useEffect(() => {
         if (purchasePrice === '' || downPaymentPtc === '') {
             setDownPaymentValue(0);
@@ -72,80 +61,11 @@ export const Settings = (args: SettingsInput) => {
         );
     }, [purchasePrice, downPaymentPtc, loanFees, escrowPtc, remodelCost]);
 
-    React.useEffect(() => {
-        setCanSubmit(
-            purchasePrice.length > 0 &&
-                parse(purchasePrice) > 0 &&
-                downPaymentPtc.length > 0 &&
-                parse(downPaymentPtc) > 0 &&
-                loanFees.length > 0 &&
-                parse(loanFees) > 0 &&
-                escrowPtc.length > 0 &&
-                parse(escrowPtc) > 0 &&
-                loanRatePtc.length > 0 &&
-                parse(loanRatePtc) > 0 &&
-                loanTerm.length > 0 &&
-                parse(loanTerm) > 0 &&
-                rentIncome.length > 0 &&
-                parse(rentIncome) > 0 &&
-                remodelCost.length > 0 &&
-                parse(remodelCost) > 0 &&
-                remodelValueIncrease.length > 0 &&
-                parse(remodelValueIncrease) > 0 &&
-                managementFeePtc.length > 0 &&
-                parse(managementFeePtc) > 0 &&
-                maintenanceCostPtc.length > 0 &&
-                parse(maintenanceCostPtc) > 0 &&
-                taxRatePtc.length > 0 &&
-                parse(taxRatePtc) > 0 &&
-                propertyTaxPtc.length > 0 &&
-                parse(propertyTaxPtc) > 0 &&
-                vacancyRatePtc.length > 0 &&
-                parse(vacancyRatePtc) > 0 &&
-                annualAppreciationPtc.length > 0 &&
-                parse(annualAppreciationPtc) > 0 &&
-                annualRentIncreasePtc.length > 0 &&
-                parse(annualRentIncreasePtc) > 0 &&
-                annualUtilities.length > 0 &&
-                parse(annualUtilities) > 0 &&
-                annualInsurance.length > 0 &&
-                parse(annualInsurance) > 0 &&
-                annualOtherCosts.length > 0 &&
-                parse(annualOtherCosts) > 0 &&
-                salesFeesPtc.length > 0 &&
-                parse(salesFeesPtc) > 0
-        );
-    }, [
-        purchasePrice,
-        landValuePtc,
-        downPaymentPtc,
-        loanFees,
-        escrowPtc,
-        loanRatePtc,
-        loanTerm,
-        rentIncome,
-        remodelCost,
-        remodelValueIncrease,
-        managementFeePtc,
-        maintenanceCostPtc,
-        taxRatePtc,
-        propertyTaxPtc,
-        vacancyRatePtc,
-        annualAppreciationPtc,
-        annualRentIncreasePtc,
-        annualUtilities,
-        annualInsurance,
-        annualOtherCosts,
-        salesFeesPtc,
-    ]);
-
     const onSubmit = (e: any) => {
+        console.log('Submit');
         e.preventDefault();
-        if (!canSubmit) {
-            return;
-        }
 
-        args.onSettingsChange({
+        let submitModel = {
             PurchasePrice: parse(purchasePrice),
             LandValuePtc: parse(landValuePtc) / 100,
             DownPaymentPtc: parse(downPaymentPtc) / 100,
@@ -167,7 +87,9 @@ export const Settings = (args: SettingsInput) => {
             AnnualInsurance: parse(annualInsurance),
             AnnualOtherCost: parse(annualOtherCosts),
             SalesFeesPtc: parse(salesFeesPtc) / 100,
-        });
+        };
+        console.log('Submit Model:', submitModel);
+        args.onSettingsChange(submitModel);
     };
 
     return (
@@ -454,7 +376,7 @@ export const Settings = (args: SettingsInput) => {
                                 max: 100,
                             }}
                         />
-                        <Button variant="contained" type="submit" disabled={canSubmit}>
+                        <Button variant="contained" type="submit">
                             Calculate
                         </Button>
                     </Stack>

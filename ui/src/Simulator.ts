@@ -76,6 +76,7 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
             cashFlow: cashFlow,
             cashAfterPropertySale: cashAfterPropertySale,
             totalCashFlowPostTax: totalCashFlowPostTax,
+            houseValue: currentHousePrice,
         });
 
         if (currentMonth % 12 === 0) {
@@ -136,6 +137,7 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
         cashFlow: 0,
         cashAfterPropertySale: 0,
         totalCashFlowPostTax: 0,
+        houseValue: 0,
     };
 
     // Todo: Is this right? should we not remove 13 for the starting index?
@@ -154,6 +156,7 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
     }
     aggrogatedYear.cashAfterPropertySale += months[months.length - 1].cashAfterPropertySale;
     aggrogatedYear.totalCashFlowPostTax += months[months.length - 1].totalCashFlowPostTax;
+    aggrogatedYear.houseValue += months[months.length - 1].houseValue;
 
     let year = Math.floor(currentMonth / 12.0);
     return {
@@ -231,6 +234,7 @@ export interface IMonthResult {
     cashFlow: number;
     cashAfterPropertySale: number;
     totalCashFlowPostTax: number;
+    houseValue: number;
 }
 
 export interface IYearResult extends IMonthResult {

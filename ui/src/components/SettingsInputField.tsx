@@ -1,9 +1,11 @@
+import React, { useState, useEffect, FunctionComponent } from 'react';
 import { IYearResult } from '../Simulator';
 import { Controller, Control } from 'react-hook-form';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import FormControl from '@mui/material/FormControl';
+import { isNumeric, formatNumber } from '../utils';
 
 interface SettingsInputFieldProps {
     fieldName: string;
@@ -25,28 +27,42 @@ function SettingsInputField(props: SettingsInputFieldProps) {
         inputProps.endAdornment = <InputAdornment position="end">{props.surfix}</InputAdornment>;
     }
 
-    const parse = (v: string): number => {
-        return parseFloat(v.replace(/,/g, ''));
-    };
-    const isNumeric = (str: string): boolean => {
-        return Number(str.replace(/,/g, '')) !== NaN;
-    };
+    React.useEffect(() => {
+        let formatted = formatNumber(props.fieldValue);
+        console.log('Created: ', props.fieldValue, formatted);
+        if (props.fieldValue !== formatted) {
+            props.setFieldValue(formatted);
+        }
+    }, []);
+
     let onChange = (e: any) => {
-        if (!isNumeric(e.target.value)) {
+        if (!e.target.value || e.target.value === '' || e.target.value === undefined) {
+            props.setFieldValue('');
+            return;
+        }
+
+        let numStr = cleanNumber(e.target.value);
+
+        if (!isNumeric(numStr)) {
             console.log(e.target.value, 'Is not a number');
             return;
         }
 
-        let rightDot = e.target.value.split('.');
-        let addDot = '';
-        if (e.target.value.endsWith('.')) {
-            addDot = '.';
-        } else if (rightDot.length >= 2) {
-            addDot = '.' + rightDot[1];
+        let num = Number(e.target.value);
+        console.log('onChange: ', num, props.rules.min, props.rules.max);
+        if (props.rules && props.rules.min && Number(e.target.value) < props.rules.min) {
+            console.log(e.target.value, 'Is less than min');
+            return;
         }
-        var commas = parse(e.target.value).toLocaleString('en-US');
-        commas = commas.split('.')[0] + addDot;
-        props.setFieldValue(commas);
+        if (props.rules && props.rules.max && Number(e.target.value) > props.rules.max) {
+            console.log(e.target.value, 'Is less than max');
+            return;
+        }
+        props.setFieldValue(formatNumber(e.target.value));
+    };
+
+    let cleanNumber = (value: string) => {
+        return value.replace(/,/g, '');
     };
 
     return (
