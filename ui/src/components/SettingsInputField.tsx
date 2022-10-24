@@ -30,7 +30,6 @@ function SettingsInputField(props: SettingsInputFieldProps) {
 
     useEffect(() => {
         let formatted = formatNumber(fieldValue + '');
-        console.log('Outer value changed', fieldValue, formatted, innerValue);
         if (formatted !== innerValue) {
             setInnerValue(formatted);
         }
@@ -67,12 +66,12 @@ function SettingsInputField(props: SettingsInputFieldProps) {
         }
         if (rules && rules.min && num < rules.min) {
             console.log(innerValue, 'Is less than min');
-            setInnerValue(props.rules.min);
+            setInnerValue(props.rules.min + '');
             return;
         }
         if (rules && rules.max && num > rules.max) {
             console.log(innerValue, 'Is less than max');
-            setInnerValue(props.rules.max);
+            setInnerValue(props.rules.max + '');
             return;
         }
 
@@ -94,12 +93,10 @@ function SettingsInputField(props: SettingsInputFieldProps) {
         } catch (error) {
             console.log('Failed to calculate math: ', error);
         }
-        console.log('Result: ', result);
         setIsMath(false);
         setInnerValue(result + '');
     };
     function calculateMath(data: string): number {
-        console.log('Calculating: ', data);
         return new Function(` return ${data}`)() as number;
     }
 

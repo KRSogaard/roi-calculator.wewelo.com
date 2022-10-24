@@ -1,11 +1,7 @@
 import * as http from 'http';
 import App from './app';
 import { APILogger } from './logger/api.logger';
-import { RabbitMQConnection, RabbitMQAudibleChannel, RabbitMQCheck } from './config/rabbitmq.config';
-import { AudibleManagementService } from './service/audible_management.service';
-import { AudibleUserService } from './service/user.service';
 import { MySQLConnection, MySQLCheck } from './config/mysql.config';
-import { MinIOCheck } from './config/minio.config';
 require('dotenv').config();
 
 // HERE FOR FAST FAILS

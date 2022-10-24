@@ -1,13 +1,10 @@
 import { Response } from 'express-serve-static-core';
 import { APILogger } from '../logger/api.logger';
 import { User } from '../models/user.model';
-import { AudibleBookService } from '../service/book.service';
-import { AudibleSeriesService } from '../service/series.service';
 import { AudibleUserService } from '../service/user.service';
-import * as Queue from '../util/Queue.util';
 import * as timeUtil from '../util/Time.util';
 
-export class AudibleController {
+export class SaveController {
     logger: APILogger;
 
     constructor() {

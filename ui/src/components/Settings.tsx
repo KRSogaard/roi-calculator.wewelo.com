@@ -28,6 +28,8 @@ interface SaveModel {
 }
 
 export const Settings = (props: SettingsInput) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const getSettingsValue = (key: string, defaultValue: number): number => {
         if (searchParams.has(key)) {
             return parseInt(searchParams.get(key) as string);
@@ -37,7 +39,6 @@ export const Settings = (props: SettingsInput) => {
 
     let { defaults, onSettingsChange } = props;
 
-    const [searchParams, setSearchParams] = useSearchParams();
     const [saveName, setSaveName] = useState<string>('');
     const [selectedSave, setSelectedSave] = useState<string | null>(null);
     const [saves, setSaves] = useState<SaveModel[]>([
@@ -50,27 +51,27 @@ export const Settings = (props: SettingsInput) => {
     const [downPaymentValue, setDownPaymentValue] = useState(0);
     const [totalClosing, setTotalClosing] = useState(0);
 
-    const [purchasePrice, setPurchasePrice] = useState<number>(getSettingsValue('purchasePrice', defaults.PurchasePrice));
-    const [landValuePtc, setLandValuePtc] = useState<number>(getSettingsValue('landValuePtc', defaults.LandValuePtc));
-    const [downPaymentPtc, setDownPaymentPtc] = useState<number>(getSettingsValue('downPaymentPtc', defaults.DownPaymentPtc));
-    const [loanFees, setLoanFees] = useState<number>(getSettingsValue('loanFee', defaults.LoanFee));
-    const [escrowPtc, setEscrowPtc] = useState<number>(getSettingsValue('escrowPtc', defaults.EscrowPtc));
-    const [loanRatePtc, setLoanRatePtc] = useState<number>(getSettingsValue('loanPtc', defaults.LoanPtc));
-    const [loanTerm, setLoanTerm] = useState<number>(getSettingsValue('loanTerms', defaults.LoanTerms));
-    const [rentIncome, setRentIncome] = useState<number>(getSettingsValue('rentIncome', defaults.RentIncome));
-    const [remodelCost, setRemodelCost] = useState<number>(getSettingsValue('remodelCost', defaults.RemodelCost));
-    const [remodelValueIncrease, setRemodelValueIncrease] = useState<number>(getSettingsValue('remodelValueIncrease', defaults.RemodelValueIncrease));
-    const [managementFeePtc, setManagementFeePtc] = useState<number>(getSettingsValue('managementFeePtc', defaults.ManagementFeePtc));
+    const [purchasePrice, setPurchasePrice] = useState<number>(getSettingsValue('PurchasePrice', defaults.PurchasePrice));
+    const [landValuePtc, setLandValuePtc] = useState<number>(getSettingsValue('LandValuePtc', defaults.LandValuePtc));
+    const [downPaymentPtc, setDownPaymentPtc] = useState<number>(getSettingsValue('DownPaymentPtc', defaults.DownPaymentPtc));
+    const [loanFees, setLoanFees] = useState<number>(getSettingsValue('LoanFee', defaults.LoanFee));
+    const [escrowPtc, setEscrowPtc] = useState<number>(getSettingsValue('EscrowPtc', defaults.EscrowPtc));
+    const [loanRatePtc, setLoanRatePtc] = useState<number>(getSettingsValue('LoanPtc', defaults.LoanPtc));
+    const [loanTerm, setLoanTerm] = useState<number>(getSettingsValue('LoanTerms', defaults.LoanTerms));
+    const [rentIncome, setRentIncome] = useState<number>(getSettingsValue('RentIncome', defaults.RentIncome));
+    const [remodelCost, setRemodelCost] = useState<number>(getSettingsValue('RemodelCost', defaults.RemodelCost));
+    const [remodelValueIncrease, setRemodelValueIncrease] = useState<number>(getSettingsValue('RemodelValueIncrease', defaults.RemodelValueIncrease));
+    const [managementFeePtc, setManagementFeePtc] = useState<number>(getSettingsValue('ManagementFeePtc', defaults.ManagementFeePtc));
     const [maintenanceCostPtc, setMaintenanceCostPtc] = useState<number>(getSettingsValue('MaintenanceCostPtc', defaults.MaintenanceCostPtc));
-    const [taxRatePtc, setTaxRatePtc] = useState<number>(getSettingsValue('taxRatePtc', defaults.TaxRatePtc));
-    const [propertyTaxPtc, setPropertyTaxPtc] = useState<number>(getSettingsValue('propertyTaxPtc', defaults.PropertyTaxPtc));
-    const [vacancyRatePtc, setVacancyRatePtc] = useState<number>(getSettingsValue('vacancyRatePtc', defaults.VacancyRatePtc));
-    const [annualAppreciationPtc, setAnnualAppreciationPtc] = useState<number>(getSettingsValue('annualAppreciationPtc', defaults.AnnualAppreciationPtc));
-    const [annualRentIncreasePtc, setAnnualRentIncreasePtc] = useState<number>(getSettingsValue('annualRentPtc', defaults.AnnualRentPtc));
-    const [annualUtilities, setAnnualUtilities] = useState<number>(getSettingsValue('annualUtilities', defaults.AnnualUtilities));
-    const [annualInsurance, setAnnualInsurance] = useState<number>(getSettingsValue('annualInsurance', defaults.AnnualInsurance));
-    const [annualOtherCosts, setAnnualOtherCosts] = useState<number>(getSettingsValue('annualOtherCost', defaults.AnnualOtherCost));
-    const [salesFeesPtc, setSalesFeesPtc] = useState<number>(getSettingsValue('salesFeesPtc', defaults.SalesFeesPtc));
+    const [taxRatePtc, setTaxRatePtc] = useState<number>(getSettingsValue('TaxRatePtc', defaults.TaxRatePtc));
+    const [propertyTaxPtc, setPropertyTaxPtc] = useState<number>(getSettingsValue('PropertyTaxPtc', defaults.PropertyTaxPtc));
+    const [vacancyRatePtc, setVacancyRatePtc] = useState<number>(getSettingsValue('VacancyRatePtc', defaults.VacancyRatePtc));
+    const [annualAppreciationPtc, setAnnualAppreciationPtc] = useState<number>(getSettingsValue('AnnualAppreciationPtc', defaults.AnnualAppreciationPtc));
+    const [annualRentIncreasePtc, setAnnualRentIncreasePtc] = useState<number>(getSettingsValue('AnnualRentPtc', defaults.AnnualRentPtc));
+    const [annualUtilities, setAnnualUtilities] = useState<number>(getSettingsValue('AnnualUtilities', defaults.AnnualUtilities));
+    const [annualInsurance, setAnnualInsurance] = useState<number>(getSettingsValue('AnnualInsurance', defaults.AnnualInsurance));
+    const [annualOtherCosts, setAnnualOtherCosts] = useState<number>(getSettingsValue('AnnualOtherCost', defaults.AnnualOtherCost));
+    const [salesFeesPtc, setSalesFeesPtc] = useState<number>(getSettingsValue('SalesFeesPtc', defaults.SalesFeesPtc));
 
     const onSubmit = (e: any) => {
         e.preventDefault();
@@ -104,7 +105,6 @@ export const Settings = (props: SettingsInput) => {
     };
 
     const saveSaves = (savesToSave: any) => {
-        console.log('Saving Saves', savesToSave.length);
         if (savesToSave.length > 0) {
             setSelectedSave(savesToSave[0].name);
             sessionStorage.setItem('saves', JSON.stringify(savesToSave));
@@ -137,7 +137,6 @@ export const Settings = (props: SettingsInput) => {
             setAnnualOtherCosts(save.value.AnnualOtherCost);
             setSalesFeesPtc(save.value.SalesFeesPtc);
         }
-        handelCalculate();
     };
 
     const handelCalculate = () => {
@@ -153,7 +152,7 @@ export const Settings = (props: SettingsInput) => {
             name: saveName,
             value: getObjectFromValue(),
         };
-        let newSaves = [...saves, settings];
+        let newSaves = [...saves.filter((s) => s.name.toLowerCase() !== settings.name.toLowerCase()), settings];
         setSaves(newSaves);
         saveSaves(newSaves);
     };
@@ -186,7 +185,6 @@ export const Settings = (props: SettingsInput) => {
             setDownPaymentValue(0);
             return;
         }
-        console.log('Calculating Down Payment', purchasePrice, downPaymentPtc, purchasePrice * downPaymentPtc);
         setDownPaymentValue(purchasePrice * downPaymentPtc);
     }, [downPaymentPtc, purchasePrice]);
 
@@ -416,7 +414,7 @@ export const Settings = (props: SettingsInput) => {
                         </Button>
                     </Stack>
                 </Paper>
-                {saves && saves.length > 0 && (
+                {saves && saves.length > 0 && selectedSave && (
                     <Paper style={{ marginTop: '8px' }}>
                         <Stack spacing={2} sx={{ p: 2 }}>
                             <Select id="load-settings" label="Load settings" value={selectedSave} onChange={(e) => setSelectedSave(e.target.value)}>

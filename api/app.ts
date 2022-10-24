@@ -2,19 +2,17 @@ import * as bodyParser from 'body-parser';
 const path = require('path');
 import * as express from 'express';
 import { APILogger } from './logger/api.logger';
-import { ImageController } from './controller/image.controller';
 import { UserController } from './controller/user.controller';
 import { AudibleUserService } from './service/user.service';
-import { AudibleController } from './controller/save.controller';
+import { SaveController } from './controller/save.controller';
 var cors = require('cors');
 
 class App {
     express: express.Application;
     logger: APILogger;
-    imageController: ImageController;
     userController: UserController;
     userService: AudibleUserService;
-    audibleService: AudibleController;
+    saveController: SaveController;
 
     protectedPaths = [
         {
@@ -55,10 +53,8 @@ class App {
         this.routes();
         this.logger = new APILogger();
 
-        this.imageController = new ImageController();
         this.userController = new UserController();
         this.userService = new AudibleUserService();
-        this.audibleService = new AudibleController();
     }
 
     // Configure Express middleware.
@@ -109,18 +105,6 @@ class App {
     }
 
     private routes(): void {
-        this.express.get('/api/image/:bookId.jpg', async (req, res) => {
-            this.imageController.getImage(req.params.bookId, res);
-        });
-
-        this.express.post('/api/user/archive/:seriesId', async (req: any, res: any) => {
-            this.userController.archiveSeries(req.user, req.params.seriesId, res);
-        });
-
-        this.express.delete('/api/user/archive/:seriesId', async (req: any, res: any) => {
-            this.userController.unarchiveSeries(req.user, req.params.seriesId, res);
-        });
-
         this.express.get('/api/user', async (req: any, res) => {
             this.userController.getMe(req.user, res);
         });
@@ -131,18 +115,6 @@ class App {
 
         this.express.post('/api/auth', async (req, res) => {
             this.userController.authUser(req.body?.username, req.body?.password, res);
-        });
-
-        this.express.post('/api/book', async (req: any, res) => {
-            this.audibleService.requestBookDownload(req.user, req.body?.bookUrl, res);
-        });
-
-        this.express.get('/api/my-series', async (req: any, res) => {
-            this.audibleService.getSeriesWithBooks(req.user, res);
-        });
-
-        this.express.get('/api/user/jobs', async (req: any, res) => {
-            this.userController.getCurrentJobs(req.user, res);
         });
 
         this.express.get('/', async (req: any, res) => {

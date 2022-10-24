@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SettingsInputField from './SettingsInputField';
 
 interface props {
@@ -13,10 +13,16 @@ function PercentField(props: props) {
 
     let [innerValue, setInnerValue] = useState<string>(value * 100 + '');
 
+    useEffect(() => {
+        let newValue = value * 100 + '';
+        if (newValue !== innerValue) {
+            setInnerValue(newValue);
+        }
+    }, [value]);
+
     const setFieldValue = (value: any) => {
         setInnerValue(value);
-
-        onChanged(parseInt(value) / 100);
+        onChanged(value / 100);
     };
 
     return (
