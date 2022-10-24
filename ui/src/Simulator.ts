@@ -1,5 +1,4 @@
 import { ppmt, ipmt, pmt } from 'financial';
-import { FormText } from 'react-bootstrap';
 
 const DepreciationOverYears: number = 27.5;
 
@@ -51,23 +50,14 @@ export let runSimulation = (input: ISettings, simulateYears: number): ISimulatio
 
         let propertySalesFees = currentHousePrice * input.SalesFeesPtc;
         let cashAtSalePreTax = currentHousePrice - propertySalesFees - currentRemainingLoan - fixedCosts.purchaseTotalOutOfPocket;
-        console.log(
-            'Cash at sale pre tax: ' + cashAtSalePreTax,
-            currentHousePrice,
-            propertySalesFees,
-            currentRemainingLoan,
-            fixedCosts.purchaseTotalOutOfPocket
-        );
         let taxableAtSale = cashAtSalePreTax - taxCredit;
         if (taxableAtSale < 0) {
             taxableAtSale = 0;
         }
 
         let taxAtSale = calculateLongTermCapitalGainsTax(taxableAtSale);
-        console.log('Tax at sale: ' + taxAtSale);
         // Todo: Do we not need to pay depriciation back if we sale at a profit?
         let cashAfterPropertySale = cashAtSalePreTax - taxAtSale;
-        console.log('Cash after property sale: ' + cashAfterPropertySale, cashAtSalePreTax, taxAtSale);
         let totalProfit = cashAfterPropertySale - totalCashFlowPostTax;
 
         months.push({
@@ -178,14 +168,6 @@ let aggregateYear = (currentMonth: number, months: IMonthResult[], years: IYearR
     aggrogatedYear.remainingLoan += months[months.length - 1].remainingLoan;
 
     let year = Math.floor(currentMonth / 12.0);
-    console.log(
-        'propertySaleReturn',
-        (aggrogatedYear.cashAfterPropertySale + aggrogatedYear.totalCashFlowPostTax) / year / fixedCosts.purchaseTotalOutOfPocket,
-        aggrogatedYear.cashAfterPropertySale,
-        aggrogatedYear.totalCashFlowPostTax,
-        year,
-        fixedCosts.purchaseTotalOutOfPocket
-    );
     return {
         ...aggrogatedYear,
         year: year,

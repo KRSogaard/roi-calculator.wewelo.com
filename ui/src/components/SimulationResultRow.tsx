@@ -1,6 +1,5 @@
 import { IYearResult } from '../Simulator';
 import { styled } from '@mui/material/styles';
-import CurrencyFormat from 'react-currency-format';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
@@ -15,6 +14,7 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Currency from './Currency';
 
 interface SimulationResultRowProps {
     year: IYearResult;
@@ -64,104 +64,34 @@ function SimulationResultRow(props: SimulationResultRowProps) {
                     </a>
                 </StyledTableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.cashOnCashReturn * 100}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        suffix={'%'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.cashOnCashReturn * 100} suffix={'%'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.cashFlowReturn * 100}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        suffix={'%'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.cashFlowReturn * 100} suffix={'%'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.cashFlowPreTax}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        prefix={'$'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.cashFlowPreTax} prefix={'$'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.cashFlow}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        prefix={'$'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.cashFlow} prefix={'$'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.capRate * 100}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        suffix={'%'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.capRate * 100} suffix={'%'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.propertySaleReturn * 100}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        suffix={'%'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.propertySaleReturn * 100} suffix={'%'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.netOperationalIncome}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        prefix={'$'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.netOperationalIncome} prefix={'$'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.operatingIncome}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        prefix={'$'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.operatingIncome} prefix={'$'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.cashAfterPropertySale}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        prefix={'$'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.cashAfterPropertySale} prefix={'$'} />
                 </TableCell>
                 <TableCell align="right">
-                    <CurrencyFormat
-                        value={year.totalExpenses}
-                        displayType={'text'}
-                        thousandSeparator={true}
-                        prefix={'$'}
-                        decimalScale={2}
-                        fixedDecimalScale={true}
-                    />
+                    <Currency value={year.totalExpenses} prefix={'$'} />
                 </TableCell>
             </StyledTableRow>
             {showDetails && (
@@ -191,195 +121,67 @@ function SimulationResultRow(props: SimulationResultRowProps) {
                             </Grid>
                             <Grid xs={4}>
                                 <b>Principal:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.principalPaid / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.principalPaid / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Intrest:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.intrestPaid / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.intrestPaid / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Property Tax:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.propertyTax / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.propertyTax / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Operating Expenses:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.operatingExpenses / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.operatingExpenses / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Net Operational Income:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.netOperationalIncome / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.netOperationalIncome / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Operating Income:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.operatingIncome / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.operatingIncome / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Tax:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.tax / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.tax / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Total Expenses:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.totalExpenses / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.totalExpenses / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Net Income:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.netIncome / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.netIncome / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Cash Flow Pre Tax:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.cashFlowPreTax / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.cashFlowPreTax / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Cash Flow:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.cashFlow / devider)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.cashFlow / devider)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>House value:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.houseValue)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.houseValue)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Cash After Property Sale:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.cashAfterPropertySale)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.cashAfterPropertySale)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Total Cash Flow Post Tax:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.totalCashFlowPostTax)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.totalCashFlowPostTax)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Total profit:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.totalProfit)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.totalProfit)} prefix={'$'} />
                             </Grid>
                             <Grid xs={4}>
                                 <b>Remaining loan:</b>
-                                <CurrencyFormat
-                                    style={{ marginLeft: '5px' }}
-                                    value={round(year.remainingLoan)}
-                                    displayType={'text'}
-                                    thousandSeparator={true}
-                                    prefix={'$'}
-                                    decimalScale={2}
-                                    fixedDecimalScale={true}
-                                />
+                                <Currency style={{ marginLeft: '5px' }} value={round(year.remainingLoan)} prefix={'$'} />
                             </Grid>
                         </Grid>
                     </TableCell>

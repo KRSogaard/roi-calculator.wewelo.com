@@ -1,51 +1,34 @@
-version: "3"
+version: '3'
 services:
-  
-  ui:
-   build:
-      context: ./ui
-      dockerfile: Dockerfile.dev
-   ports:
-    -  3000:3000
-   container_name: mean-ui
-   networks:
-    -  mean-stack-net
-   volumes:
-    -  ./ui/src:/usr/app/src
-    -  ./ui/public:/usr/app/public
-   depends_on:
-    - api
-   stdin_open: true
-   tty: true
+    ui:
+        build:
+            context: ./ui
+            dockerfile: Dockerfile.dev
+        ports:
+            - 3000:3000
+        container_name: mean-ui
+        volumes:
+            - ./ui/src:/usr/app/src
+            - ./ui/public:/usr/app/public
+        depends_on:
+            - api
+        stdin_open: true
+        tty: true
 
-  api:
-   build:
-      context: ./api
-      dockerfile: Dockerfile.dev
-   ports:
-     - 3080:3080
-   container_name: mean-api
-   networks:
-     - mean-stack-net
-   volumes:
-    - ./api/src:/usr/app/src
-   depends_on:
-    - db
-
-  db:
-    image: mongo
-    ports:
-      - 27017:27017
-    container_name: mongo-db
-    networks:
-      - mean-stack-net
-    volumes:
-      - mongo-data:/data/db
-
-networks:
-  mean-stack-net:
-    driver: bridge
+    api:
+        build:
+            context: ./api
+            dockerfile: Dockerfile.dev
+        ports:
+            - 3080:3080
+        container_name: mean-api
+        networks:
+            - mean-stack-net
+        volumes:
+            - ./api/src:/usr/app/src
+        depends_on:
+            - db
 
 volumes:
-  mongo-data:
-    driver: local
+    mongo-data:
+        driver: local

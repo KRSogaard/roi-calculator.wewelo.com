@@ -1,65 +1,157 @@
-import * as bodyParser from "body-parser";
+import * as bodyParser from 'body-parser';
 const path = require('path');
-import * as express from "express";
-import { APILogger } from "./logger/api.logger";
-import { SaveController } from "./controller/save.controller";
-import swaggerUi = require('swagger-ui-express');
-import fs = require('fs');
+import * as express from 'express';
+import { APILogger } from './logger/api.logger';
+import { ImageController } from './controller/image.controller';
+import { UserController } from './controller/user.controller';
+import { AudibleUserService } from './service/user.service';
+import { AudibleController } from './controller/save.controller';
+var cors = require('cors');
 
 class App {
+    express: express.Application;
+    logger: APILogger;
+    imageController: ImageController;
+    userController: UserController;
+    userService: AudibleUserService;
+    audibleService: AudibleController;
 
-    public express: express.Application;
-    public logger: APILogger;
-    public saveController: SaveController;
-
-    /* Swagger files start */
-    // private swaggerFile: any = (process.cwd()+"/swagger/swagger.json");
-    // private swaggerData: any = fs.readFileSync(this.swaggerFile, 'utf8');
-    // private customCss: any = fs.readFileSync((process.cwd()+"/swagger/swagger.css"), 'utf8');
-    // private swaggerDocument = JSON.parse(this.swaggerData);
-    /* Swagger files end */
-
+    protectedPaths = [
+        {
+            startsWith: false,
+            path: '/api/user',
+            method: 'GET',
+        },
+        {
+            startsWith: false,
+            path: '/api/book',
+            method: 'POST',
+        },
+        {
+            startsWith: false,
+            path: '/api/my-series',
+            method: 'GET',
+        },
+        {
+            startsWith: true,
+            path: '/api/user/archive/',
+            method: 'POST',
+        },
+        {
+            startsWith: true,
+            path: '/api/user/archive/',
+            method: 'DELETE',
+        },
+        {
+            startsWith: false,
+            path: '/api/user/jobs',
+            method: 'GET',
+        },
+    ];
 
     constructor() {
         this.express = express();
         this.middleware();
         this.routes();
         this.logger = new APILogger();
-        this.saveController = new SaveController();
+
+        this.imageController = new ImageController();
+        this.userController = new UserController();
+        this.userService = new AudibleUserService();
+        this.audibleService = new AudibleController();
     }
 
     // Configure Express middleware.
     private middleware(): void {
+        this.express.use(cors());
         this.express.use(bodyParser.json());
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(express.static(path.join(__dirname, '../ui/build')));
+        this.express.use(async (req: Record<string, any>, res, next) => {
+            let isAuthRequired = false;
+            this.protectedPaths.forEach((protectedPath) => {
+                if (!protectedPath.method.toLowerCase().includes(req.method.toLowerCase())) {
+                    return;
+                }
+
+                if (protectedPath.startsWith) {
+                    if (req.path.startsWith(protectedPath.path)) {
+                        isAuthRequired = true;
+                    }
+                } else if (req.path === protectedPath.path) {
+                    isAuthRequired = true;
+                }
+            });
+
+            let token = null;
+            if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+                token = req.headers.authorization.substring(7);
+                this.logger.debug('Token: ' + token);
+
+                let user = await this.userService.getUserByToken(token);
+                if (!user) {
+                    res.status(401).send('Unauthorized');
+                    return;
+                }
+                req.user = user;
+            }
+
+            if (isAuthRequired) {
+                if (!req.user) {
+                    res.status(401).send('Unauthorized');
+                    return;
+                }
+                next();
+            } else {
+                next();
+            }
+        });
     }
 
     private routes(): void {
-
-        this.express.get('/api/saves', (req, res) => {
-            this.saveController.getTasks().then(data => res.json(data));
-        });
-        
-        this.express.post('/api/saves', (req, res) => {
-            console.log(req.body);
-            this.saveController.createTask(req.body.task).then(data => res.json(data));
-        });
-                
-        this.express.delete('/api/saves/:id', (req, res) => {
-            this.saveController.deleteTask(req.params.id).then(data => res.json(data));
+        this.express.get('/api/image/:bookId.jpg', async (req, res) => {
+            this.imageController.getImage(req.params.bookId, res);
         });
 
-        this.express.get("/", (req, res, next) => {
-            res.sendFile(path.join(__dirname, '../ui/build/index.html'));
+        this.express.post('/api/user/archive/:seriesId', async (req: any, res: any) => {
+            this.userController.archiveSeries(req.user, req.params.seriesId, res);
         });
 
-        // swagger docs
-        //this.express.use('/api/docs', swaggerUi.serve, swaggerUi.setup(this.swaggerDocument, null, null, this.customCss));
+        this.express.delete('/api/user/archive/:seriesId', async (req: any, res: any) => {
+            this.userController.unarchiveSeries(req.user, req.params.seriesId, res);
+        });
+
+        this.express.get('/api/user', async (req: any, res) => {
+            this.userController.getMe(req.user, res);
+        });
+
+        this.express.post('/api/user', async (req: any, res) => {
+            this.userController.registerUser(req.body?.username, req.body?.password, req.body?.email, res);
+        });
+
+        this.express.post('/api/auth', async (req, res) => {
+            this.userController.authUser(req.body?.username, req.body?.password, res);
+        });
+
+        this.express.post('/api/book', async (req: any, res) => {
+            this.audibleService.requestBookDownload(req.user, req.body?.bookUrl, res);
+        });
+
+        this.express.get('/api/my-series', async (req: any, res) => {
+            this.audibleService.getSeriesWithBooks(req.user, res);
+        });
+
+        this.express.get('/api/user/jobs', async (req: any, res) => {
+            this.userController.getCurrentJobs(req.user, res);
+        });
+
+        this.express.get('/', async (req: any, res) => {
+            res.sendFile(path.join(__dirname, './ui/build/index.html'));
+        });
 
         // handle undefined routes
-        this.express.use("*", (req, res, next) => {
-            res.send("Make sure url is correct!!!");
+        this.express.use('*', (req, res, next) => {
+            res.status(404).send('Not Found');
         });
     }
 }

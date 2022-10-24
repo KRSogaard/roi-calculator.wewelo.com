@@ -1,9 +1,6 @@
-import React, { useState, useEffect, FunctionComponent } from 'react';
-import { IYearResult } from '../Simulator';
-import { Controller, Control } from 'react-hook-form';
+import React, { useEffect } from 'react';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import FormControl from '@mui/material/FormControl';
 import { isNumeric, formatNumber } from '../utils';
 
@@ -11,70 +8,128 @@ interface SettingsInputFieldProps {
     fieldName: string;
     fieldLable: string;
     fieldValue: any;
-    setFieldValue: (value: any) => void;
+    onChange: (value: any) => void;
     prefix?: string | undefined;
     surfix?: string | undefined;
     rules: any;
-    errors?: string[];
 }
 
 function SettingsInputField(props: SettingsInputFieldProps) {
+    let { fieldName, fieldLable, fieldValue, onChange, prefix, surfix, rules } = props;
+
     let inputProps = {} as any;
-    if (props.prefix) {
-        inputProps.startAdornment = <InputAdornment position="start">{props.prefix}</InputAdornment>;
+    if (prefix) {
+        inputProps.startAdornment = <InputAdornment position="start">{prefix}</InputAdornment>;
     }
-    if (props.surfix) {
-        inputProps.endAdornment = <InputAdornment position="end">{props.surfix}</InputAdornment>;
+    if (surfix) {
+        inputProps.endAdornment = <InputAdornment position="end">{surfix}</InputAdornment>;
     }
 
-    React.useEffect(() => {
-        let formatted = formatNumber(props.fieldValue);
-        console.log('Created: ', props.fieldValue, formatted);
-        if (props.fieldValue !== formatted) {
-            props.setFieldValue(formatted);
-        }
-    }, []);
+    const [innerValue, setInnerValue] = React.useState<string>(formatNumber(fieldValue + ''));
+    const [isMath, setIsMath] = React.useState<boolean>(false);
 
-    let onChange = (e: any) => {
-        if (!e.target.value || e.target.value === '' || e.target.value === undefined) {
-            props.setFieldValue('');
+    useEffect(() => {
+        let formatted = formatNumber(fieldValue + '');
+        console.log('Outer value changed', fieldValue, formatted, innerValue);
+        if (formatted !== innerValue) {
+            setInnerValue(formatted);
+        }
+    }, [fieldValue]);
+
+    useEffect(() => {
+        if (!innerValue || innerValue === '') {
+            onChange(0);
+            return;
+        }
+        if (innerValue.endsWith('.')) {
+            // No change
+            return;
+        }
+        if (isStringMath(innerValue)) {
+            // wait for math to finish, also remove commas if any
+            if (!isMath) {
+                setInnerValue(innerValue.replace(/,/g, ''));
+                setIsMath(true);
+            }
             return;
         }
 
-        let numStr = cleanNumber(e.target.value);
-
-        if (!isNumeric(numStr)) {
-            console.log(e.target.value, 'Is not a number');
+        let numStr = cleanNumber(innerValue);
+        let num = parseInt(numStr);
+        if (isNaN(num)) {
+            onChange(0);
+            setInnerValue('');
             return;
         }
 
-        let num = Number(e.target.value);
-        console.log('onChange: ', num, props.rules.min, props.rules.max);
-        if (props.rules && props.rules.min && Number(e.target.value) < props.rules.min) {
-            console.log(e.target.value, 'Is less than min');
+        if (innerValue.includes('.')) {
+            num = parseFloat(numStr);
+        }
+        if (rules && rules.min && num < rules.min) {
+            console.log(innerValue, 'Is less than min');
+            setInnerValue(props.rules.min);
             return;
         }
-        if (props.rules && props.rules.max && Number(e.target.value) > props.rules.max) {
-            console.log(e.target.value, 'Is less than max');
+        if (rules && rules.max && num > rules.max) {
+            console.log(innerValue, 'Is less than max');
+            setInnerValue(props.rules.max);
             return;
         }
-        props.setFieldValue(formatNumber(e.target.value));
+
+        onChange(num);
+        let formatted = formatNumber(num + '');
+        if (formatted !== innerValue) {
+            // Formatting the number for the user;
+            setInnerValue(formatted);
+        }
+    }, [innerValue]);
+
+    const onblur = () => {
+        if (!isMath) {
+            return;
+        }
+        let result = 0;
+        try {
+            result = calculateMath(innerValue);
+        } catch (error) {
+            console.log('Failed to calculate math: ', error);
+        }
+        console.log('Result: ', result);
+        setIsMath(false);
+        setInnerValue(result + '');
+    };
+    function calculateMath(data: string): number {
+        console.log('Calculating: ', data);
+        return new Function(` return ${data}`)() as number;
+    }
+
+    const isStringMath = (value: string) => {
+        return value.includes('+') || value.includes('-') || value.includes('*') || value.includes('/') || value.includes('(') || value.includes(')');
     };
 
-    let cleanNumber = (value: string) => {
+    let cleanNumber = (value: string): string => {
+        if (!value) {
+            return '0';
+        }
         return value.replace(/,/g, '');
     };
 
     return (
         <FormControl fullWidth sx={{ m: 1 }}>
             <TextField
-                label={props.fieldLable}
+                label={fieldLable}
                 id="outlined-size-small"
                 size="small"
-                name={props.fieldName}
-                value={props.fieldValue}
-                onChange={onChange}
+                name={fieldName}
+                value={innerValue}
+                onChange={(e) => setInnerValue(e.target.value)}
                 InputProps={inputProps}
+                onBlur={() => onblur()}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        onblur();
+                    }
+                }}
             />
         </FormControl>
     );

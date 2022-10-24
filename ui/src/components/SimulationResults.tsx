@@ -1,7 +1,5 @@
 import React, { useState, useEffect, FunctionComponent } from 'react';
 import { ISimulationResult, IYearResult } from '../Simulator';
-import CurrencyFormat from 'react-currency-format';
-import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';

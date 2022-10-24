@@ -1,26 +1,10 @@
-import { SaveRepository } from '../repository/save.repository';
+import { APILogger } from '../logger/api.logger';
+import * as mysql from '../util/MySQL.util';
 
 export class SaveService {
-
-    private taskRepository: SaveRepository;
+    public logger: APILogger;
 
     constructor() {
-        this.taskRepository = new SaveRepository();
-    }
-
-    async getTasks() {
-        return await this.taskRepository.getTasks();
-    }
-
-    async createTask(task) {
-        return await this.taskRepository.createTask(task);
-    }
-
-    async updateTask(task) {
-        return await this.taskRepository.updateTask(task);
-    }
-
-    async deleteTask(taskId) {
-        return await this.taskRepository.deleteTask(taskId);
+        this.logger = new APILogger();
     }
 }

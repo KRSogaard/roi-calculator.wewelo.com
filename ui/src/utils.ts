@@ -1,4 +1,8 @@
 export const formatNumber = (s: string): string => {
+    if (typeof s !== 'string') {
+        s = s + '';
+    }
+
     let rightDot = s.split('.');
     let addDot = '';
     if (s.endsWith('.')) {
